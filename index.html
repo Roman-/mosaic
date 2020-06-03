@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="Create your Rubik's cube mosaic — free online tool for Rubik's cube art" />
+    <meta name="keywords" content="mosaic, Rubik's cube" />
+    <meta name="author" content="Roman Strakhov">
+    <meta name="theme-color" content="#eee" id='metaBarColor'>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="js/3rd_party/bootstrap.min.css"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" type="text/css" href="css/fa.min.css">
+    <link rel="stylesheet" type="text/css" href="js/3rd_party/cropper.min.css">
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/3rd_party/jquery-3.3.1.min.js" ></script>
+    <script src="js/3rd_party/popper.min.js"></script>
+    <script src="js/3rd_party/bootstrap.min.js"></script>
+    <script src="js/3rd_party/cropper.min.js"></script>
+    <script src="js/3rd_party/jquery.color-2.1.2.min.js"></script>
+
+    <!-- 3rd party js -->
+    <script src='js/3rd_party/bootstrap-input-spinner.js'> </script>
+    <script src='js/3rd_party/jquery.color-2.1.2.min.js'> </script>
+    <!-- jspdf -->
+    <script type="text/javascript" src="js/3rd_party/jspdf/jspdf.js"></script>
+    <script type="text/javascript" src="js/3rd_party/jspdf/plugins/addimage.js"></script>
+
+    <!-- game scripts and styles -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src='js/init.js'> </script>
+    <script src='js/imagedata.js'> </script>
+    <script src='js/ranges.js'> </script>
+    <script src='js/layouts.js'> </script>
+    <script src='js/helpers.js'> </script>
+    <script src='js/glob.js'> </script>
+    <script src='js/ditheralgs.js'> </script>
+    <script src='js/pdfcomposer.js'> </script>
+    <script src='js/palette.js'> </script>
+    <script src='js/saveload.js'> </script>
+    <script src='js/texts.js'> </script>
+
+    <title>Rubik's cube mosaic & portraits creator tool</title>
+</head>
+<body>
+
+    <!-- navbar -->
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand">
+        <img src="img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        <span id='appName'></span>
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+              <a class="nav-link closeMenu" id='dropImgMenu' onclick='loDropImage()'><i class='fa fa-plus'></i> New mosaic</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link closeMenu" onclick='loPalette()'><i class='fa fa-palette'></i> Palette editor</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href='https://www.speedsolving.com/threads/bse-mosaic-new-cube-mosaic-building-software.76139/' target='_blank'><i class='fa fa-comments'></i> Discussion forum</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href='https://paypal.me/romanstrakhov' target='_blank'><i class='fa fa-donate'></i> Support the project</a>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+
+<div id="mainLayWrap" class='container'>
+    <div id='mainLayout' class='centered'>
+    </div>
+</div>
+
+<input id='imgFile' accept='image/*' type='file' onchange='onUploadImgChange(null)' hidden/>
+
+<footer class="footer">
+  <div class="container text-center">
+      <span class="text-muted">
+          <a href='https://bestsiteever.ru' target='_blank'><img src='img/logo.png' class='em15'/></a>
+                      with 💖
+              by <a href='https://bestsiteever.ru/me' target='_blank'>Roman Strakhov</a>
+      </span>
+  </div>
+</footer>
+
+</body>
+</html>
