@@ -534,11 +534,15 @@ function onUploadImgChange(file = null) {
 }
 
 // uploaded image has been loaded completely - check if it's a miniature or a normal picture
-// TODO maybe should output a window where used selects how to interpret uploaded picture
 function onImageHasBeenLoaded() {
-    if ((Glob.img.width * Glob.img.height < Glob.maxCubesForMiniature * 9)
-            && (Glob.img.width%3==0)
-            && (Glob.img.height%3==0)) {
+    console.log("image has been uploaded: ", Glob.imgFileName);
+    // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
+    // with all sides devisible by 3
+    let isMiniature = ((Glob.img.width%3==0) && (Glob.img.height%3==0))
+        && (Glob.imgFileName.toLowerCase().startsWith('miniature')
+               || (Glob.img.width * Glob.img.height < Glob.maxCubesForMiniature * 9));
+
+    if (isMiniature) {
         onMiniatureUploaded();
     } else {
         loCropper();
