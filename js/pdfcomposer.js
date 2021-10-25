@@ -98,8 +98,12 @@ function drawCubesBlock(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, 
                     let y = cubeY + stickerI;
                     if (x < Glob.imageData.width && y < Glob.imageData.height) {
                         let rgb = getRgbOfPixel(Glob.imageData, x, y);
+                        if (Glob.pdfBwPrinter)
+                            doc.setFillColor(255, 255, 255);
+                        else
+                            doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+
                         // if rgb is too dark, make colors brighter otherwise we won't see separators
-                        doc.setFillColor(rgb[0], rgb[1], rgb[2]);
                         doc.rect(cubePosX + stickerJ * stickerSize, cubePosY + stickerI * stickerSize,
                                 stickerSize, stickerSize, 'FD');
 

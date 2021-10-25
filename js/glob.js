@@ -16,8 +16,9 @@ Glob.maxFileSizeMb = 8.0; // we don't want to give user the experience of waitin
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
 Glob.maxCubesForMiniature = 1400; // heuristics for maximum cubes (pixels/9) that a miniature file can have
 
-Glob.pdfDrawLetters = false; // draw color-notation letters inside squares
 Glob.bottomToTop = true; // output PDF bottom-to-top
+Glob.pdfDrawLetters = false; // draw color-notation letters inside squares
+Glob.pdfBwPrinter = false; // black-and-white printer? If true, will draw white squares instead of colored
 
 Glob.initialCubeDimen = 3; // 1 for pixart, 3 for 3x3 cubes
 Glob.initialCubeWidth = 20;

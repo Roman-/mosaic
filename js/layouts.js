@@ -65,14 +65,15 @@ function loAdjustPortrait(chooseOptions, opt) {
     editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
         .html("<i class='fa fa-edit'></i> edit pixel-by-pixel").click(editPpClicked);
     let underMiniDiv = $("<div class='col-6'></div>").append(editPixelsBtn).css('margin-left', '50%');
+    let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     if (Glob.cubeDimen % 3==0 && (Glob.pixelWidth * Glob.pixelHeight < Glob.maxCubesForMiniature * 9)) {
-        imagesDiv.append(underMiniDiv);
+        imagesDiv.append(underMiniDiv, underUnderDiv);
     }
 
     function editPpClicked() {
         downloadGlobImageData();
-        underMiniDiv.css('margin-left', '').removeClass('col-6').empty().html(Txt.editPixelByPixel);
+        underUnderDiv.html(Txt.editPixelByPixel);
     }
 
     // returns div with image adjustments spinners
@@ -145,10 +146,30 @@ function loAdjustPortrait(chooseOptions, opt) {
     let drawLettersCb = $("<input type='checkbox'/>").on('input', function () {
         let checked = $(this).prop('checked');
         Glob.pdfDrawLetters = checked;
+
+        // make sure to draw colors if there're no letters
+        if (!checked) {
+            dontUseColorCb.prop('checked', false);
+            dontUseColorCb.trigger('input');
+        }
     });
     let drawLettersLabel = $("<label class='form-control my-0'></label>")
         .append(drawLettersCb, " draw letters")
         .attr('title', 'Draw letters for each color in the color squares in PDF');
+
+    var dontUseColorCb = $("<input type='checkbox'/>").prop('checked', Glob.pdfBwPrinter).on('input', function () {
+        let checked = $(this).prop('checked');
+        Glob.pdfBwPrinter = checked;
+
+        // make sure to draw letters if no color
+        if (checked) {
+            drawLettersCb.prop('checked', true);
+            drawLettersCb.trigger('input');
+        }
+    });
+    var dontUseColorLabel = $("<label class='form-control my-0'></label>")
+        .append(dontUseColorCb, " black-and-white PDF")
+        .attr('title', 'Want to print PDF on black-and-white printer?');
 
     let bottomTopCb = $("<input type='checkbox' checked/>").on('input', function () {
         let checked = $(this).prop('checked');
@@ -179,8 +200,9 @@ function loAdjustPortrait(chooseOptions, opt) {
             "<hr>",
             $("<div>PDF blocks size ("+(Glob.cubeDimen > 1 ? "cubes" : "pixels")+"):</div>"),
             pdfBlocks,
-            drawLettersLabel,
             bottomTopLabel,
+            drawLettersLabel,
+            dontUseColorLabel,
             "<hr>",
             startAgainBtn,
         );
@@ -199,15 +221,23 @@ function loAdjustPortrait(chooseOptions, opt) {
             setTimeout(function () {
                 generatePdf();
                 makePdfBtn.html(pdfBtnText);
-                setTitle('Your PDF is ready, good luck <i class="fa fa-grin-wink"></i>');
+                setTitle('Your PDF is ready <i class="fa fa-rocket"></i>');
+                underUnderDiv.empty();
+                wasItHelpfulDiv.show();
             }, 50);
 
         });
+
+    let wasHelpfulSpan = $("<span class='mr-2'>Did you like the result?</span>");
+    let btnHelpfulYes = $("<button class='btn btn-link'>Yes</button>").click(function () {wasItHelpfulDiv.html(Txt.thatWasHelpful);});
+    let btnHelpfulNo = $("<button class='btn btn-link'>No</button>").click(function () {wasItHelpfulDiv.html(Txt.thatWasNotHelpful);});
+    var wasItHelpfulDiv = $("<div class='mt-2'></div>").append(wasHelpfulSpan, btnHelpfulYes, btnHelpfulNo).hide();
     rightPanel.append(
             buildRangesDiv(),
             collapseBtn,
             collapsedDiv,
             makePdfBtn,
+            wasItHelpfulDiv
     );
 
     let row = $("<div class='row'></div>").append(imagesDiv, rightPanel);
@@ -297,7 +327,7 @@ function loCropper() {
             return heightInput.focus();
         $(this).html("Cropping..."); setTimeout(onCropImage, 1)
     });
-    let panelLeft = $("<div class='col-sm-8'></div>").append(widthInput, " &times; ", heightInput, " = ", equalSpan, ' cubes ', cubeDimenSelect);
+    let panelLeft = $("<div class='col-sm-8'></div>").append(widthInput, " &times; ", heightInput, " = ", equalSpan, 'cubes ', cubeDimenSelect);
     let panelRight = $("<div class='col-sm-4'></div>").append(nextBtn);
     let panel = $("<div class='card'></div>").append($("<div class='row'></div>").append(panelLeft, panelRight))
         .css('padding', '0.5em');
@@ -319,7 +349,7 @@ function loCropper() {
     heightInput.inputSpinner();
     */
 
-    setTitle('Specify number of cubes <i class="fa fa-cubes"></i> and crop the image <i class="fa fa-cut"></i>');
+    setTitle('Specify the number of cubes <i class="fa fa-cubes"></i> and crop the image <i class="fa fa-cut"></i>');
 }
 
 // layout with 1-st step choose. Displays a bunch of canvases
@@ -399,7 +429,7 @@ function loGradAdjustment(chooseOptions, opt, callNumber = 1) {
     });
 
     $("#mainLayout").empty().append(topPanel, splitter, canvasesDiv);
-    setTitle('Ready to make your mosaic?');
+    setTitle('Almost done');
 }
 
 // layout with pictures to select, after general method has been choosen
@@ -433,7 +463,7 @@ function lo2ndChoice(chooseOptions, opt) {
     });
 
     $("#mainLayout").empty().append(canvasesDiv);
-    setTitle('Which looks better?');
+    setTitle('Which one looks better?');
 }
 
 // returns jquery div with intro text
@@ -535,7 +565,6 @@ function onUploadImgChange(file = null) {
 
 // uploaded image has been loaded completely - check if it's a miniature or a normal picture
 function onImageHasBeenLoaded() {
-    console.log("image has been uploaded: ", Glob.imgFileName);
     // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
     // with all sides devisible by 3
     let isMiniature = ((Glob.img.width%3==0) && (Glob.img.height%3==0))
@@ -568,4 +597,8 @@ function onMiniatureUploaded() {
     };
     loAdjustPortrait(chooseOpts, 0);
     setTitle("Miniature uploaded <i class='fa fa-brain'></i>");
+}
+
+function getVidEmbedCode() {
+    return `<iframe width="560" height="315" src="https://www.youtube.com/embed/MhVSOkys8pI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
 }
