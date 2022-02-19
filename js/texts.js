@@ -9,6 +9,7 @@ Txt.gradText = "If checked, the color will be used as a part of dark-to-bright <
 Txt.edText = "<b>Try Error Diffusion without this color</b><br><br>For each color that is checked, program will generate separate approximation <b>without</b> this color using <i>error diffusion</i> method. E.g. since green doesn't look great on portraits, it's tempting to check it and see what does the <i>error diffusion</i> approximation look like without green.<br>Checking a lot of colors may result in a lot of options on the first step, which may not be what you want";
 Txt.availableText = "Colors that are not available will not be used at all";
 Txt.editPixelByPixel = "Downloaded <i>.png</i> file is called <strong>miniature</strong>: each pixel represents a sticker on the cube. You can edit it pixel-by-pixel in your favourite image editor.<br>When you are finished, simply upload the edited miniature (drag-and-drop it here or menu&rarr;New mosaic).";
+Txt.littleHintUnder = "Mouse wheel to zoom in/out. Drag the box or the background to move. Drag the bottom-right corner to resize.";
 
 Txt.qaTitlesAndTexts = [
     "<h3 class='mt-4'>What is this?</h3>",

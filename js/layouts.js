@@ -334,14 +334,18 @@ function loCropper() {
     let imgWrapper = $("<div></div>").append(imgTag);
 
     Glob.cropper = new Cropper(imgTag[0], {
-      aspectRatio: 1,
-      dragMode: 'move',
-      center: false,
-      autoCropArea: 0.999,
-      viewMode: 1,
+        aspectRatio: 1,
+        dragMode: 'move',
+        center: false,
+        autoCropArea: 0.999,
+        viewMode: 1, // restrict the crop box not to exceed the size of the canvas
+        minCropBoxWidth: 25,
+        minCropBoxHeight: 25,
     });
 
-    $("#mainLayout").empty().append(panel, imgWrapper);
+    let littleHintText = $("<div></div>").html(Txt.littleHintUnder).addClass("text-secondary font-italic small");
+
+    $("#mainLayout").empty().append(panel, imgWrapper, littleHintText);
     changeAspectRadio();
     widthInput.inputSpinner();
     heightInput.inputSpinner();
@@ -372,7 +376,7 @@ function loChoose() {
         })
     });
 
-    var btnChangePal = $("<button class='btn btn-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
+    var btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
     $("#mainLayout").empty().append(canvasesDiv, btnChangePal);
 
     setTitle('Select the best looking picture <i class="fa fa-grip-horizontal"></i>');
