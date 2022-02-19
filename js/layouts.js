@@ -228,16 +228,11 @@ function loAdjustPortrait(chooseOptions, opt) {
 
         });
 
-    let wasHelpfulSpan = $("<span class='mr-2'>Did you like the result?</span>");
-    let btnHelpfulYes = $("<button class='btn btn-link'>Yes</button>").click(function () {wasItHelpfulDiv.html(Txt.thatWasHelpful);});
-    let btnHelpfulNo = $("<button class='btn btn-link'>No</button>").click(function () {wasItHelpfulDiv.html(Txt.thatWasNotHelpful);});
-    var wasItHelpfulDiv = $("<div class='mt-2'></div>").append(wasHelpfulSpan, btnHelpfulYes, btnHelpfulNo).hide();
     rightPanel.append(
             buildRangesDiv(),
             collapseBtn,
             collapsedDiv,
             makePdfBtn,
-            wasItHelpfulDiv
     );
 
     let row = $("<div class='row'></div>").append(imagesDiv, rightPanel);

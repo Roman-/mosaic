@@ -10,10 +10,6 @@ Txt.edText = "<b>Try Error Diffusion without this color</b><br><br>For each colo
 Txt.availableText = "Colors that are not available will not be used at all";
 Txt.editPixelByPixel = "Downloaded <i>.png</i> file is called <strong>miniature</strong>: each pixel represents a sticker on the cube. You can edit it pixel-by-pixel in your favourite image editor.<br>When you are finished, simply upload the edited miniature (drag-and-drop it here or menu&rarr;New mosaic).";
 
-Txt.thatWasHelpful = "Cool, it's always nice to know my tool was helpful to someone. If you feel like showing your appreciation, you can <a href='https://paypal.me/romanstrakhov' target='_blank'>donate a buck</a> or two so I can buy myself some coffee.";
-Txt.thatWasNotHelpful = "If you can't get a good result, try uploading a different picture. You can learn some recommendations for the source picture on the <button class='btn btn-link p-0' onclick='loDropImage()'>main page</button>. If you have suggestions on how this tool can be improved, feel free to share them in <a href='https://www.speedsolving.com/threads/bse-mosaic-new-cube-mosaic-building-software.76139/' target='_blank'>this speedsovling thread</a>.";
-
-
 Txt.qaTitlesAndTexts = [
     "<h3 class='mt-4'>What is this?</h3>",
     "You might've seen artists doing pictures from hundreds, or even thousands of Rubik's cubes. The main hurdle of this art is to turn a full-color photo into a 6-color pixelized version of it. This tool automates the entire process for you.",
