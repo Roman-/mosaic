@@ -274,7 +274,6 @@ function loCropper() {
             saveLocal('initialCubeHeight', h);
             saveLocal('initialCubeDimen', Glob.cubeDimen);
 
-
             showLoadingSpinner();
             setTimeout(loChoose, 1);
         }
@@ -283,7 +282,7 @@ function loCropper() {
         Glob.img.addEventListener('load', onImageCroppedLoaded);
         Glob.img.src = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
     }
-    let cubeDimenSelect = $("<select id='cubeDimen' class='form-control d-inline col-3'></select>");
+    let cubeDimenSelect = $("<select id='cubeDimen' class='form-control'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {
         let sizeHtml = (d == 1) ? "1 pixel" : d+'x'+d+'x'+d;
         cubeDimenSelect.append($("<option></option>").val(d).html(sizeHtml));
@@ -313,24 +312,29 @@ function loCropper() {
     }
     var widthInput = $("<input type='number' size='3'>")
         .attr('title', 'width (cubes)')
-        .addClass('form-control col-2 d-inline')
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeWidth).on('input', changeAspectRadio);
     var heightInput = $("<input type='number' size='3'>")
         .attr('title', 'height (cubes)')
-        .addClass('form-control col-2 d-inline')
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeHeight).on('input', changeAspectRadio);
-    let equalSpan = $("<span id='totalCubesSpan'></span>").css('font-weight', 'bold').css('margin-right', '5px');
-    let nextBtn = $("<button class='btn btn-success form-control' id='nextBtn'>Next <i class='fa fa-arrow-alt-circle-right'></i></button>").click(function () {
-        if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
-            return widthInput.focus();
-        if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
-            return heightInput.focus();
-        $(this).html("Cropping..."); setTimeout(onCropImage, 1)
+    let equalWrap = $("<div id='totalCubesSpan'></div>").css('font-weight', 'bold').css('margin', 'auto 0.4em');
+    let nextBtn = $("<button class='btn btn-success form-control' id='nextBtn'></button>")
+        .html("Next <i class='fa fa-arrow-alt-circle-right'></i>")
+        .click(function (e) {
+            e.preventDefault();
+            if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
+                return widthInput.focus();
+            if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
+                return heightInput.focus();
+            $(this).html("Cropping..."); setTimeout(onCropImage, 1)
     });
-    let panelLeft = $("<div class='col-sm-8'></div>").append(widthInput, " &times; ", heightInput, " = ", equalSpan, 'cubes ', cubeDimenSelect);
-    let panelRight = $("<div class='col-sm-4'></div>").append(nextBtn);
-    let panel = $("<div class='card'></div>").append($("<div class='row'></div>").append(panelLeft, panelRight))
-        .css('padding', '0.5em');
+
+    let jqCol = (content, maxWidth) => {return $("<div class='col'></div>").append(content).css('max-width', maxWidth);};
+    let jqMarginAuto = (content) => {return $("<div></div>").append(content).css('margin', 'auto');};
+    let panel = $("<form></form>").append($("<div class='form-group row'></div>").css('margin-bottom', '0').append(
+        jqCol(widthInput, '11em'), jqMarginAuto("&times;"),
+        jqCol(heightInput, '11em'), jqMarginAuto("="), equalWrap,
+        jqMarginAuto("cubes"), jqCol(cubeDimenSelect, '11em'), jqCol(nextBtn, 'none'))
+    ).css('padding', '0.5em');
 
     let imgWrapper = $("<div></div>").append(imgTag);
 
@@ -344,10 +348,8 @@ function loCropper() {
 
     $("#mainLayout").empty().append(panel, imgWrapper);
     changeAspectRadio();
-    /* these don't work :(
     widthInput.inputSpinner();
     heightInput.inputSpinner();
-    */
 
     setTitle('Specify the number of cubes <i class="fa fa-cubes"></i> and crop the image <i class="fa fa-cut"></i>');
 }
