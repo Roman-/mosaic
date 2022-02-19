@@ -216,14 +216,14 @@ function loAdjustPortrait(chooseOptions, opt) {
         .css('height', '3.5em')
         .html(pdfBtnText)
         .click(function () {
-            makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...");
+            makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);;
             redrawMosaicWithUiRanges(); // in case we've blurred canvas or something
             setTimeout(function () {
                 generatePdf();
                 makePdfBtn.html(pdfBtnText);
                 setTitle('Your PDF is ready <i class="fa fa-rocket"></i>');
                 underUnderDiv.empty();
-                wasItHelpfulDiv.show();
+                setTimeout(()=>{makePdfBtn.prop("disabled", false)}, 500);
             }, 50);
 
         });
