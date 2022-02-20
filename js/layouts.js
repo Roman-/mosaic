@@ -323,8 +323,6 @@ function loCropper() {
             $(this).html("Cropping..."); setTimeout(onCropImage, 1)
     });
 
-    let jqCol = (content, maxWidth) => {return $("<div class='col'></div>").append(content).css('max-width', maxWidth);};
-    let jqMarginAuto = (content) => {return $("<div></div>").append(content).css('margin', 'auto');};
     let panel = $("<form></form>").append($("<div class='form-group row'></div>").css('margin-bottom', '0').append(
         jqCol(widthInput, '11em'), jqMarginAuto("&times;"),
         jqCol(heightInput, '11em'), jqMarginAuto("="), equalWrap,

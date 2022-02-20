@@ -177,17 +177,20 @@ function jqPaletteLay() {
     var advanced = false;
     let div = $("<div></div>");
 
-    let panel = $("<div></div>");
+    let panel = $("<div></div>").addClass('row');
+    let colPadding = "0 0.3em";
 
     let btnReset = $("<button></button>")
         .html('Reset to defaults')
-        .addClass('btn btn-warning m-1')
+        .addClass('btn btn-warning m-1 form-control')
         .click(function () {
             if (!confirm('Are you sure to reset palette? You will loose all changes'))
                 return;
             Glob.palette = JSON.parse(JSON.stringify(Glob.defaultPalette));
             updatePalOnScreen();
         });
+    let btnResetWrap = jqCol(btnReset, '16em').css('padding', colPadding);
+
     let btnDone = $("<button></button>")
         .html('Done')
         .addClass('btn btn-success m-1 form-control')
@@ -197,44 +200,45 @@ function jqPaletteLay() {
             showLoadingSpinner();
             setTimeout(returnLayout, 10);
         });
+    let btnDoneWrap = jqCol(btnDone, 'none').css('padding', colPadding);
 
     var btnAdvanced = $("<button></button>")
         .html('Advanced settings')
-        .addClass('btn btn-outline-primary m-1')
+        .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             advanced = true;
             updatePalOnScreen();
-            btnAdvanced.hide();
-            btnAddColor.show();
-            btnSave.show();
-            btnLoad.show();
+            btnAdvancedWrap.hide();
+            btnAddColorWrap.show();
+            btnSaveWrap.show();
+            btnLoadWrap.show();
         });
+    let btnAdvancedWrap = jqCol(btnAdvanced, '16em').css('padding', colPadding);
 
     var btnLoad = $("<button></button>")
         .html('Load from file&hellip;')
-        .addClass('btn btn-outline-primary m-1')
-        .hide()
+        .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             openLoadPalDialog(updatePalOnScreen);
         });
+    let btnLoadWrap = jqCol(btnLoad, '12em').css('padding', colPadding).hide();
 
     var btnSave = $("<button></button>")
         .html('Download this palette')
-        .addClass('btn btn-outline-primary m-1')
+        .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {downloadPlainText(JSON.stringify(Glob.palette), "My palette.pal")})
-        .hide();
+    let btnSaveWrap = jqCol(btnSave, '16em').css('padding', colPadding).hide();
 
     var btnAddColor = $("<button></button>")
         .html('<i class="fa fa-plus"></i> Add color')
-        .addClass('btn btn-outline-primary m-1')
-        .hide()
+        .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             Glob.palette.push(newColor());
             updatePalOnScreen();
         });
+    let btnAddColorWrap = jqCol(btnAddColor, '12em').css('padding', colPadding).hide();
 
-    panel.append(btnReset, btnAddColor, btnAdvanced, btnSave, btnLoad,
-            btnDone);
+    panel.append(btnResetWrap, btnAddColorWrap, btnAdvancedWrap, btnSaveWrap, btnLoadWrap, btnDoneWrap);
 
     var tableContainer = $("<div></div>");
     updatePalOnScreen();

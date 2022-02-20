@@ -28,6 +28,9 @@ function showBsModal(content, title = 'Info', fullscreen = false, id='newBsModal
     return div;
 };
 
+var jqCol = (content, maxWidth) => {return $("<div class='col'></div>").append(content).css('max-width', maxWidth);};
+var jqMarginAuto = (content) => {return $("<div></div>").append(content).css('margin', 'auto');};
+
 function exit( status ) {
     // http://kevin.vanzonneveld.net
     // +   original by: Brett Zamir (http://brettz9.blogspot.com)
