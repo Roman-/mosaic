@@ -1,6 +1,13 @@
 # Mosaic
-## Rubik's cube mosaic builder
 
+<details>
+  <summary>Demo</summary>
+  
+  ![demo](img/demo.gif)
+  
+</details>
+
+## Rubik's cube mosaic builder
 ![](img/tutorial.jpg)
 
 ## Project structure
