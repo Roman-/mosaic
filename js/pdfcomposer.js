@@ -1,10 +1,9 @@
 PdfComposer = {};
 PdfComposer.pt2mm = 25.4 / 72; // point to millimeter ratio
-PdfComposer.pt2mm
 PdfComposer.fontFace = "helvetica";
 PdfComposer.fontFaceMono = "courier";
 
-// returns object: {name: string; row: string; column: string}
+// @returns object: {name: string; row: string; column: string}
 function blockNameL(row, col, numBlocksHeight) {
     let letter = String.fromCharCode(65 + col);
     let number = '' + (numBlocksHeight - row);
@@ -26,7 +25,6 @@ function generatePdf() {
     const areaBlock = blockDrawArea(doc);
     const areaMiniautre = miniatureDrawArea(doc)['mini'];
     const nmRect = miniatureDrawArea(doc)['blockName'];
-    countColoredCubes();
     Glob.pdfProgress = 0;
 
     let numBlocksWidth = Math.ceil(Glob.pixelWidth / Glob.cubeDimen / blockWidthCubes);
@@ -47,7 +45,7 @@ function generatePdf() {
         return console.error("bottom-top sanity check failed", biBegin, biLast, biInc);
     }
 
-    for (let blockI = biBegin; blockI != biLast; blockI += biInc) { // i = row, denoted with digit
+    for (let blockI = biBegin; blockI !== biLast; blockI += biInc) { // i = row, denoted with digit
         for (let blockJ = 0; blockJ < numBlocksWidth; blockJ++) {
             doc.addPage();
             // drawing block #(blockI, blockJ)
@@ -65,9 +63,8 @@ function generatePdf() {
     terminatePdf(doc);
 }
 
-// draws page block on the
-// drawAreaRect - where to draw the block: {x,y,width, height}
-// blockWidthCubes: how many cubes are in one blocks (width)
+// @param drawAreaRect - where to draw the block: {x,y,width, height}
+// @param blockWidthCubes: how many cubes are in one blocks (width)
 function drawCubesBlock(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, drawAreaRect) {
     let stickerSize = Math.min(drawAreaRect.width / Glob.cubeDimen / blockWidthCubes,
                               drawAreaRect.height / Glob.cubeDimen / blockHeightCubes );
@@ -139,7 +136,7 @@ function terminatePdf(doc) {
 }
 
 // draws the text in the center of the rect
-// textUrl - if set, make a hyperlink instead
+// @param textUrl - if set, make a hyperlink instead
 function drawTextInMidRect(doc, text, rect, textSize, textUrl = null) {
     doc.setFontSize(textSize);
     // instead of text width, calc width of max line
@@ -172,8 +169,9 @@ function drawTextInRect(doc, text, centered, x, y, rectWidth, rectHeight) {
     } while (realTextWidth > rectWidth);
 
 
-    if (centered)
+    if (centered) {
         x -= (realTextWidth - rectWidth)/2;
+    }
     y += (textSize + (oldTextSize-textSize)/2) * PdfComposer.pt2mm;
 
     doc.text(x, y, text);
@@ -188,7 +186,7 @@ function drawMiniature(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, r
     }
 }
 
-// returns area where on the page we draw the cubes block
+// @returns area where on the page we draw the cubes block
 function blockDrawArea(doc) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -203,9 +201,9 @@ function blockDrawArea(doc) {
     };
 }
 
-// returns area where on the page we draw the cubes block
+// @returns area where on the page we draw the cubes block
 // leave 15% from both sides
-// returns object with rects: {imageArea, headerArea, footerArea}
+// @returns object with rects: {imageArea, headerArea, footerArea}
 function titlePicDrawArea(doc) {
     const topMarginCoeff = 0.15;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -238,7 +236,7 @@ function titlePicDrawArea(doc) {
     };
 }
 
-// returns object {mini: miniatureRect; blockName: blockNameRect} area where on the page we draw miniature
+// @returns object {mini: miniatureRect; blockName: blockNameRect} area where on the page we draw miniature
 function miniatureDrawArea(doc) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -297,7 +295,7 @@ function drawDocHeader(doc, rect) {
     doc.setFontSize(26);
     let cw = Glob.pixelWidth / Glob.cubeDimen;
     let ch = Glob.pixelHeight / Glob.cubeDimen;
-    let text = '' + cw + 'x' + ch + ' = ' + (cw*ch) + (Glob.cubeDimen == 1 ? ' pixels' : ' cubes');
+    let text = '' + cw + 'x' + ch + ' = ' + (cw*ch) + (Glob.cubeDimen === 1 ? ' pixels' : ' cubes');
 
     drawTextInMidRect(doc, text, rect, 26)
 }
@@ -311,15 +309,15 @@ function drawDocFooter(doc, rect) {
         : 'Bestsiteever Mosaic builder - free software by Roman Strakhov' + '\nhttps://bestsiteever.ru/mosaic';
 
     let text = "";
-    if (Glob.cubeDimen > 2)
-        text += countColoredCubes() + "\n";
+    if (Glob.cubeDimen > 2) {
+        text += nearlySolvedCubesText();
+    }
     text += additionalText;
     drawTextInMidRect(doc, text, rect, 12)
 }
 
-// draws page block on the
-// drawAreaRect - where to draw the block: {x,y,width, height}
-// blockWidthCubes: how many cubes are in one blocks (width)
+// @param drawAreaRect - where to draw the block: {x,y,width, height}
+// @param blockWidthCubes: how many cubes are in one blocks (width)
 function drawTitlePage(doc, numBlocksWidth, numBlocksHeight, blockWidthCubes, blockHeightCubes, drawAreaRect) {
     let lettersMargin = drawAreaRect.width * 0.1; // margin for letters
     let rect = {
@@ -385,8 +383,8 @@ function drawTitlePage(doc, numBlocksWidth, numBlocksHeight, blockWidthCubes, bl
     }
 }
 
-// counts near-pure cubes (solved, 1-away and 2-away) and returns string describing how many near-pure cubes are needed
-function countColoredCubes() {
+// Counts near-pure cubes (solved, 1-away and 2-away) and @returns string describing how many near-pure cubes are needed
+function nearlySolvedCubesText() {
     const numberFill = Glob.cubeDimen * Glob.cubeDimen;
     let allCubes = {}; // {"0;255;0": 6; "255;128;0-almost": 2; ...}
     for (let i = 0; i < Glob.pixelWidth; i += Glob.cubeDimen) {
@@ -396,7 +394,7 @@ function countColoredCubes() {
             for (let pi = i; pi < i + Glob.cubeDimen; pi++) {
                 for (let pj = j; pj < j + Glob.cubeDimen; pj++) {
                     if (getRgbOfPixel(Glob.imageData, pi, pj)[0] == -1) {
-                        console.warn("countColoredCubes: get pixel data: i = ", i, ", j = ", j, ", pi = ", pi, ", pj = ", pj);
+                        console.warn("nearlySolvedCubesText: get pixel data: i = ", i, ", j = ", j, ", pi = ", pi, ", pj = ", pj);
                     }
                     let rgbJoined = getRgbOfPixel(Glob.imageData, pi, pj).join(";");
                     if (!thisCubeCols[rgbJoined])
@@ -421,9 +419,13 @@ function countColoredCubes() {
         }
     }
 
+    if (allCubes.length == 0)
+        return "";
+
     let stringArr = [];
     $.each(allCubes, function(color, num) {
         stringArr.push(num + " " + color);
     });
-    return "Nearly-solved cubes (2 stickers away or less): " + stringArr.join(', ') + ".";
+
+    return "Nearly-solved cubes (2 stickers away or less): " + stringArr.join(', ') + ".\n";
 }

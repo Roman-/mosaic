@@ -1,6 +1,6 @@
-// returns array of length numBorders
-// scatter [0..1] how wide the range is. 1 for occupying the entire (0..255) scale
-// position [0..1] where on the scale (0,255) this range is
+// @returns array of length numBorders
+// @param scatter [0..1] how wide the range is. 1 for occupying the entire (0..255) scale
+// @param position [0..1] where on the scale (0,255) this range is
 function createUniformRange(numBorders, scatter, position) {
     let rangeLength = 255*scatter; // yes, for scatter=1 we won't see white nor blue colors
     let distance = rangeLength / (numBorders-1);
@@ -12,10 +12,10 @@ function createUniformRange(numBorders, scatter, position) {
     return range;
 }
 
-// Returns initial set of ranges for gradient method. Return type = array of arrays (ranges).
+// @returns initial set of ranges for gradient method. Return type = array of arrays (ranges).
 // Number of ranges returned = positions.length * scatter.length, i.e. it creates a range for each position/scatter pair
-// positions: array of range positions, e.g. [0.58, 0.66]
-// scatters: array of range scatters, e.g. = [0.45, 0.38]
+// @param positions: array of range positions, e.g. [0.58, 0.66]
+// @param scatters: array of range scatters, e.g. = [0.45, 0.38]
 function initialRangePopulation(palette, positions, scatters) {
     let setOfRanges = [];
     positions.forEach(function (position) {
@@ -26,8 +26,8 @@ function initialRangePopulation(palette, positions, scatters) {
     return setOfRanges;
 }
 
-// given chooseSet object (see glob.js) and selected option \param opt,
-// returns array of opts that are close to opt
+// given chooseSet object (see glob.js) and selected option @param opt,
+// @returns array of opts that are close to opt
 // pre-requirement: opt is in chooseSet.opts
 function populateOpts(chooseSet, opt) {
     // else assume opt is a float number in the array chooseSet.opts

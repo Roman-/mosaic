@@ -31,7 +31,7 @@ function loDropImage() {
 function loAdjustPortrait(chooseOptions, opt) {
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
-        // returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
+        // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
         function getUiRangesArray() {
             if ($("input#rang0").length == 0) {
                 console.error("getRangesArray: no ranges inputs");
@@ -43,7 +43,7 @@ function loAdjustPortrait(chooseOptions, opt) {
             return arr;
         }
 
-        let uiOpt = (chooseOptions.method == 'grad') ? getUiRangesArray() : $("#optRatio").val();
+        let uiOpt = (chooseOptions.method === Methods.GRADIENT) ? getUiRangesArray() : $("#optRatio").val();
 
         // drawing twice is a dirty hack have antialiasing corresponding to image size
         Glob.imageData = drawMosaicOnCanvas(Glob.canvas, chooseOptions.palette, chooseOptions.method, uiOpt, !asCubeStickers);
@@ -67,7 +67,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let underMiniDiv = $("<div class='col-6'></div>").append(editPixelsBtn).css('margin-left', '50%');
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
-    if (Glob.cubeDimen % 3==0 && (Glob.pixelWidth * Glob.pixelHeight < Glob.maxCubesForMiniature * 9)) {
+    if (Glob.cubeDimen % 3 === 0 && (Glob.pixelWidth * Glob.pixelHeight < Glob.maxCubesForMiniature * 9)) {
         imagesDiv.append(underMiniDiv, underUnderDiv);
     }
 
@@ -76,12 +76,12 @@ function loAdjustPortrait(chooseOptions, opt) {
         underUnderDiv.html(Txt.editPixelByPixel);
     }
 
-    // returns div with image adjustments spinners
+    // @returns div with image adjustments spinners
     function buildRangesDiv() {
-        if (chooseOptions.method == 'grad') {
+        if (chooseOptions.method === Methods.GRADIENT) {
             let rangesDiv = $("<div></div>");
 
-            // returns color prefix for input spinner
+            // @returns color prefix for input spinner
             function inputPrefix(i) {
                 let col = 'rgb(' + chooseOptions.palette[i][0] + ',' + chooseOptions.palette[i][1] + ',' + chooseOptions.palette[i][2] + ');';
                 let style = 'font-weight: bold; background-color: '+col+'; border-radius: 3px; padding: 0 0.5em;';
@@ -98,7 +98,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                 rangesDiv.append(r);
             }
             return rangesDiv;
-        } else { // if method !='grad'
+        } else { // if method != GRADIENT
             let rangesDiv = $("<div></div>")
                 .attr('title', 'grain');
             let inputRatio = $("<input type='number'>")
@@ -122,7 +122,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         redrawMosaicWithUiRanges(true);
     });
     [['White', '#eee'], ['Black', '#111'], ['Color', null]].forEach(function (o) {
-        let option = $("<option></option>").val(o[1]).html(o[0]).prop('selected', (o[0] == 'Color'));
+        let option = $("<option></option>").val(o[1]).html(o[0]).prop('selected', (o[0] === 'Color'));
         plasticColorSelect.append(option);
     });
 
@@ -172,8 +172,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .attr('title', 'Want to print PDF on black-and-white printer?');
 
     let bottomTopCb = $("<input type='checkbox' checked/>").on('input', function () {
-        let checked = $(this).prop('checked');
-        Glob.bottomToTop = checked;
+        Glob.bottomToTop = $(this).prop('checked');
     });
     let bottomTopLabel = $("<label class='form-control my-0'></label>")
         .append(bottomTopCb, " output bottom-to-top")
@@ -189,7 +188,7 @@ function loAdjustPortrait(chooseOptions, opt) {
             $("<input type='number' min='1' max='20'></input>")
                 .attr('title', 'Block height')
                 .attr('data-prefix', '<span class="fa fa-arrows-alt-v fa-fw"></span>')
-                .val(Glob.cubeDimen == 1 ? Glob.defaultBlockHeightPixels : Glob.defaultBlockHeightCubes)
+                .val(Glob.cubeDimen === 1 ? Glob.defaultBlockHeightPixels : Glob.defaultBlockHeightCubes)
                 .change(function () {Glob.blockHeightCubes = $(this).val();})
                 .trigger('change')
             );
@@ -249,6 +248,31 @@ function loAdjustPortrait(chooseOptions, opt) {
     setTitle('Your '+totalCubes+' cubes mosaic <i class="fa fa-cubes"></i>');
 }
 
+// layout with last step, with fine adjustments of the portrait and "download PDF" button
+function loDitherAdjustment(chooseOptions, opt) {
+    let optsPopulation = populateOpts(chooseOptions, opt);
+
+    let canvasesDiv = $("<div class='text-center'></div>");
+
+    optsPopulation.forEach(function (opt) {
+        // create canvas
+        let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
+            .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
+            .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.7)) // <- resize
+            .click(function () {
+                showLoadingSpinner();
+                setTimeout(function () {loAdjustPortrait(chooseOptions, opt);}, 1);
+            });
+
+        // draw image with ranges
+        drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt);
+        canvasesDiv.append(canvas);
+    });
+
+    $("#mainLayout").empty().append(canvasesDiv);
+    setTitle('Which one looks better?');
+}
+
 // layout with cropper
 function loCropper() {
     // crop, set pixel size and build mosaic
@@ -279,7 +303,7 @@ function loCropper() {
     }
     let cubeDimenSelect = $("<select id='cubeDimen' class='form-control'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {
-        let sizeHtml = (d == 1) ? "1 pixel" : d+'x'+d+'x'+d;
+        let sizeHtml = (d === 1) ? "1 pixel" : d+'x'+d+'x'+d;
         cubeDimenSelect.append($("<option></option>").val(d).html(sizeHtml));
     });
     cubeDimenSelect.val(Glob.initialCubeDimen);
@@ -290,7 +314,7 @@ function loCropper() {
         .css('max-width', '100%')
         .height(window.innerHeight * 0.7);
 
-    // returns true if w,h > 1 and < maxCubes
+    // @returns true if w,h > 1 and < maxCubes
     function whWithinBoundaries(w,h) {
         return w*h > 1 && w <= Glob.maxCubesSize && h <= Glob.maxCubesSize;
     }
@@ -362,6 +386,7 @@ function loChoose() {
             // create canvas
             let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
                 .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
+                .attr('title', chooseOptions.displayName)
                 .width(canvasDisplayWidth) // <- resize
                 .click(function () {
                     showLoadingSpinner();
@@ -435,37 +460,21 @@ function loGradAdjustment(chooseOptions, opt, callNumber = 1) {
 function lo2ndChoice(chooseOptions, opt) {
     showLoadingSpinner();
     window.scrollTo(0, 0); // for large amount of images
-    if (chooseOptions.method == 'grad')
-        return loGradAdjustment(chooseOptions, opt);
-    else if (chooseOptions.method == 'closestColor')
-        return loAdjustPortrait(chooseOptions, opt);
+    switch  (chooseOptions.method) {
+        case Methods.GRADIENT:
+            return loGradAdjustment(chooseOptions, opt);
+        case Methods.CLOSEST_COLOR:
+            return loAdjustPortrait(chooseOptions, opt);
+        case Methods.ATKINSON:
+        case Methods.ORDERED:
+        case Methods.ERROR_DIFFUSION:
+            return loDitherAdjustment(chooseOptions, opt);
+        default: console.error("unknown chooseOptions.method", chooseOptions);
+    }
 
-    // below is code for lo2ndchoice for different dithering methods
-
-    let optsPopulation = populateOpts(chooseOptions, opt);
-
-    let canvasesDiv = $("<div class='text-center'></div>");
-
-    optsPopulation.forEach(function (opt) {
-        // create canvas
-        let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
-            .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
-            .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.7)) // <- resize
-            .click(function () {
-                showLoadingSpinner();
-                setTimeout(function () {loAdjustPortrait(chooseOptions, opt);}, 1);
-            });
-
-        // draw image with ranges
-        drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt);
-        canvasesDiv.append(canvas);
-    });
-
-    $("#mainLayout").empty().append(canvasesDiv);
-    setTitle('Which one looks better?');
 }
 
-// returns jquery div with intro text
+// @returns jquery div with intro text
 function aboutText() {
     let aboutDiv = $("<div></div>");
 

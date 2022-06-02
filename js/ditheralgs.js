@@ -1,17 +1,120 @@
-// ditheralgs.js - dithering algorithms from https://danielepiccone.github.io/ditherjs/
+// ditheralgs.js - image approximation methods and dithering algorithms from https://danielepiccone.github.io/ditherjs/
+const Methods = {
+    GRADIENT         : 1,
+    CLOSEST_COLOR    : 2,
+    ORDERED          : 3,
+    ERROR_DIFFUSION  : 4,
+    ATKINSON         : 5,
+};
 
-// returns new uint8data array
-// ratio values: 0..5
-// ImageData objecg (w, height)
+// Applies gradient approximation method to @param imageData in-place
+// Gradient method works best for close-up faces as it conveys the shadows/shapes rather than the original color.
+// @param palette - array of arrays [r,g,b] - colors used for gradient, sorted darker-to-brighter
+// @param imageData - object of type Imagedata {data, width, height}
+// @param ranges - array of color borders. ranges.length is (number_of_colors - 1).
+// Gradient method treats image as grayscale image and replaces colors according to palette:
+//     colors with tone [0..ranges[0]] are replaced with palette[0],
+//     colors with tone [ranges[0]..ranges[1]] are replaced with palette[1],
+//     ...
+//     colors with tone [ranges[N-1] .. 255] are replaced with palette[N],
+function gradientMethod(imageData, palette, ranges) {
+    let data = imageData.data;
+    // @returns array [r,g,b] - color that matches certain tone (0-255)
+    function matchGradientColor(tone, ranges) {
+        // make sure ranges match colors
+        if (ranges.length >= palette.length) {
+            console.error("ranges/colors length mismatch:", ranges, palette);
+            exit();
+        }
+
+        for (let i = 0; i < ranges.length; i++) {
+            if (tone < ranges[i])
+                return palette[i];
+        }
+
+        return palette[palette.length - 1];
+    }
+
+    for (var i = 0; i < data.length; i+=4) {
+        let r = data[i];
+        let g = data[i+1];
+        let b = data[i+2];
+
+        // to grayscale
+        let tone = (r+g+b)/3;
+
+        let c = matchGradientColor(tone, ranges);
+
+        data[i] = c[0];
+        data[i+1] = c[1];
+        data[i+2] = c[2];
+        data[i+3] = 255;
+    }
+}
+
+// Applies closest-color method to @param imageData in-place
+// Closest color method simply replaces the color of each pixel with the closest color from the palette
+// @param imageData - object of type Imagedata {data, width, height}
+// @param palette - array of arrays [r,g,b] - colors used for gradient
+// @param lightCoeff - if >0, we also look at pixel brightness when looking for closest color
+function closestColorMethod(imageData, palette, lightCoeff = 0) {
+// For a given color @param c, @returns its best match from @param palette
+// @param c - color array of [r,g,b]
+// @param palette - array of arrays [r,g,b]
+// @returns color in [r,g,b] format
+function bestMatchFor(c) {
+    let bestMatch = palette[0]; // palColor
+    let bestDistance = Number.MAX_SAFE_INTEGER;
+    palette.forEach(function (p) {
+        let d = colorDistanceSL(c, p);
+        if (d < bestDistance) {
+            bestDistance = d;
+            bestMatch = p;
+        }
+    });
+    return bestMatch;
+}
+
+// @returns saturation/lightness-distance between 2 colors (arr1 and arr2 in [r,g,b]) format
+function colorDistanceSL(arr1, arr2) {
+    let c1 = jQuery.Color(arr1);
+    let c2 = jQuery.Color(arr2);
+    let r = Math.abs(c1.red() - c2.red()) / 255;
+    let g = Math.abs(c1.green() - c2.green()) / 255;
+    let b = Math.abs(c1.blue() - c2.blue()) / 255;
+    let l = Math.abs(c1.lightness() - c2.lightness()) * lightCoeff;
+    return r+g+b+l;
+}
+    let data = imageData.data;
+
+    for (var i = 0; i < data.length; i+=4) {
+        let r = data[i];
+        let g = data[i+1];
+        let b = data[i+2];
+
+        let c = bestMatchFor([r,g,b]);
+
+        data[i] = c[0];
+        data[i+1] = c[1];
+        data[i+2] = c[2];
+        data[i+3] = 255;
+    }
+}
+
+// @returns dithered image as uint8data array
+// Ordered dither is most similar to the closest-color tactic, as it tends to only use colors,
+// e.g. for the face it usually won't use any colors of the Rubik's Cube other than orange
+// @param ratio - a value from 0.0 to 5.0. Smaller values give smoother (less grained) result
+// @param imageData - object of type Imagedata {data, width, height}
 function orderedDither(imageData, palette, ratio) {
     var d = new Uint8ClampedArray(imageData.data);
     var w = imageData.width; var h = imageData.height;
-    var m = new Array(
+    var m = [
         [  1,  9,  3, 11 ],
         [ 13,  5, 15,  7 ],
         [  4, 12,  2, 10 ],
         [ 16,  8, 14,  6 ]
-    );
+    ];
 
     var r, g, b, a, i, color, approx, tr, tg, tb;
 
@@ -29,7 +132,7 @@ function orderedDither(imageData, palette, ratio) {
             d[g] += m[x%4][y%4] * ratio;
             d[b] += m[x%4][y%4] * ratio;
 
-            color = new Array(d[r],d[g],d[b]);
+            color = [d[r],d[g],d[b]];
             approx = approximateColor(color, palette);
             tr = approx[0];
             tg = approx[1];
@@ -44,7 +147,12 @@ function orderedDither(imageData, palette, ratio) {
     return new ImageData(d, w);
 }
 
-// ratioDenom values: 0..5
+// @returns dithered image as uint8data array
+// Error diffusion tends to make picture look good from far away by mixing
+// different colors from the palette in a way that being blurred (mixed) they closely
+// represent the original color
+// @param ratioDenom: 0 = totally grained, [3..5] = quite smooth
+// @param imageData - object of type Imagedata {data, width, height}
 function errorDiffusionDither(imageData, palette, ratioDenom = 3) {
     var d = new Uint8ClampedArray(imageData.data);
     var out = new Uint8ClampedArray(imageData.data);
@@ -70,7 +178,7 @@ function errorDiffusionDither(imageData, palette, ratioDenom = 3) {
             b = i+2;
             a = i+3;
 
-            color = new Array(d[r],d[g],d[b]);
+            color = [d[r],d[g],d[b]];
             approx = this.approximateColor(color, palette);
 
             q = [];
@@ -113,12 +221,14 @@ function errorDiffusionDither(imageData, palette, ratioDenom = 3) {
             }
         }
     }
-    // return out;
     return new ImageData(out, w);
 }
 
-// atkinsonDither isn't used in this software because results are very similar to errorDiffusion method
-// ratioDenom vals: [0..5]
+// @returns dithered image as uint8data array
+// Atkinson dither is visually very similar to error diffusion, but instead of making
+// a chess pattern it produces stitches-like pattern
+// @param ratioDenom: 0 = totally grained, [3..5] = quite smooth
+// @param imageData - object of type Imagedata {data, width, height}
 function atkinsonDither(imageData, palette, ratioDenom) {
     var d = new Uint8ClampedArray(imageData.data);
     var out = new Uint8ClampedArray(imageData.data);
@@ -192,15 +302,16 @@ function atkinsonDither(imageData, palette, ratioDenom) {
         }
     }
     return new ImageData(out, w);
-    // return out;
 }
 
+/// @returns array [r,g,b] - color from palette that's closest to @param color
+/// @param palette - array of arrays [[r, g, b], [r, g, b], ...]
 function approximateColor(color, palette) {
     var findIndex = function(fun, arg, list, min) {
         if (list.length == 2) {
             if (fun(arg,min) <= fun(arg,list[1])) {
                 return min;
-            }else {
+            } else {
                 return list[1];
             }
         } else {
@@ -213,98 +324,16 @@ function approximateColor(color, palette) {
             return findIndex(fun,arg,tl,min);
         }
     };
-    var foundColor = findIndex(colorDistance, color, palette, palette[0]);
-    return foundColor;
-};
+    return findIndex(colorDistance, color, palette, palette[0]);
+}
 
-var colorDistance = function colorDistance(a, b) {
+/// @returns euclidian distance between colors
+/// @param a, b - array [r, g, b]
+function colorDistance(a, b) {
     return Math.sqrt(
         Math.pow( ((a[0]) - (b[0])),2 ) +
         Math.pow( ((a[1]) - (b[1])),2 ) +
         Math.pow( ((a[2]) - (b[2])),2 )
     );
-};
-
-/* does Gaussain blur on image
- * usage exmaple:
-    var canvasBlur = new CanvasFastBlur({ blur: 6 });
-	var blur = document.querySelector("#blur_val").value;
-	canvasBlur.gBlur(blur);
-	canvasBlur.recoverCanvas();
-*/
-class CanvasFastBlur {
-    constructor(options) {
-        const defaultRadius = 4;
-        if (options && options.blur)
-            this.blurRadius = options.blur || defaultRadius;
-        else
-            this.blurRadius = defaultRadius;
-    }
-    initCanvas(canvas){
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
-        let w = canvas.width;
-        let h = canvas.height;
-        this.canvas_off = document.createElement("canvas");
-        this.ctx_off = this.canvas_off.getContext("2d");
-        this.canvas_off.width = w;
-        this.canvas_off.height = h;
-        this.ctx_off.drawImage(canvas, 0, 0);
-    }
-    recoverCanvas(){
-        let w = this.canvas_off.width;
-        let h = this.canvas_off.height;
-        this.canvas.width = w;
-        this.canvas.height = h;
-        this.ctx.drawImage(this.canvas_off,0,0);
-    }
-    gBlur(blur = 4) {
-        blur = blur || this.blurRadius;
-        let canvas = this.canvas;
-        let ctx = this.ctx;
-
-        let sum = 0;
-        let delta = 5;
-        let alpha_left = 1 / (2 * Math.PI * delta * delta);
-        let step = blur < 3 ? 1 : 2;
-        for (let y = -blur; y <= blur; y += step) {
-            for (let x = -blur; x <= blur; x += step) {
-                let weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
-                sum += weight;
-            }
-        }
-        let count = 0;
-        for (let y = -blur; y <= blur; y += step) {
-            for (let x = -blur; x <= blur; x += step) {
-                count++;
-                ctx.globalAlpha = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta)) / sum * blur;
-                ctx.drawImage(canvas,x,y);
-            }
-        }
-        ctx.globalAlpha = 1;
-    }
-    mBlur(distance){
-        distance = distance<0?0:distance;
-        console.log(distance);
-        let w = this.canvas.width;
-        let h = this.canvas.height;
-        this.canvas.width = w;
-        this.canvas.height = h;
-        let ctx = this.ctx;
-        ctx.clearRect(0,0,w,h);
-        let canvas_off = this.canvas_off;
-
-        for(let n=0;n<5;n+=0.1){
-            ctx.globalAlpha = 1/(2*n+1);
-            let scale = distance/5*n;
-            ctx.transform(1+scale,0,0,1+scale,0,0);
-            ctx.drawImage(canvas_off, 0, 0);
-        }
-        ctx.globalAlpha = 1;
-        if(distance<0.01){
-            window.requestAnimationFrame(()=>{
-                this.mBlur(distance+0.0005);
-            });
-        }
-    }
 }
+

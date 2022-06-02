@@ -11,7 +11,7 @@
 Glob.defaultPalette = [
     {
         available: false,
-        rgb: [000, 000, 000], // Black
+        rgb: [  0,   0,   0], // Black
         name: 'Black',
         notation: 'D',
         grad: true,
@@ -19,7 +19,7 @@ Glob.defaultPalette = [
     },
     {
         available: true,
-        rgb: [000, 000, 255], // Blue
+        rgb: [  0,   0, 255], // Blue
         name: 'Blue',
         notation: 'B',
         grad: true,
@@ -27,7 +27,7 @@ Glob.defaultPalette = [
     },
     {
         available: true,
-        rgb: [000, 255, 000], // Green
+        rgb: [  0, 255,   0], // Green
         name: 'Green',
         notation: 'G',
         grad: false,
@@ -35,7 +35,7 @@ Glob.defaultPalette = [
     },
     {
         available: true,
-        rgb: [255, 000, 000], // Red
+        rgb: [255,   0,   0], // Red
         name: 'Red',
         notation: 'R',
         grad: true,
@@ -53,7 +53,7 @@ Glob.defaultPalette = [
     */
     {
         available: true,
-        rgb: [255, 153, 000], // Orange
+        rgb: [255, 153,   0], // Orange
         name: 'Orange',
         notation: 'O',
         grad: true,
@@ -61,7 +61,7 @@ Glob.defaultPalette = [
     },
     {
         available: true,
-        rgb: [255, 255, 000], // Yellow
+        rgb: [255, 255,   0], // Yellow
         name: 'Yellow',
         notation: 'Y',
         grad: true,
@@ -78,7 +78,7 @@ Glob.defaultPalette = [
 ];
 Glob.palette = JSON.parse(JSON.stringify(Glob.defaultPalette));
 
-// returns new color to be inserted into pal
+// @returns new color to be inserted into pal
 function newColor() {
     return {
         available: false,
@@ -90,7 +90,7 @@ function newColor() {
     }
 }
 
-// returns array of RGBs of all available colors
+// @returns array of RGBs of all available colors
 function getFullPalette() {
     let result = [];
     Glob.palette.forEach(function (pal) {
@@ -100,33 +100,38 @@ function getFullPalette() {
     return result;
 }
 
-// returns array of RGBs for gradient method
+// @returns array of RGBs for gradient method
 function getGradPalette() {
     let result = [];
     Glob.palette.forEach(function (c) {
         if (c.available && c.grad)
             result.push(c.rgb);
     });
+    // TODO should we always sort the result palette by darkness?
+    // One problem that might occurr is if both green (0,255,0) and blue (0,0,255) are
+    // in the palette, the user will have no control over their order.
+    // result.sort((a, b) => {return ((a[0]+a[1]+a[2]) - (b[0]+b[1]+b[2]));});
     return result;
 }
 
-// returns array palettes to try out error diffusion method with
-function getAllDitherPalettes() {
+// @returns array palettes to try out error diffusion method with
+function getAllEdDitherPalettes() {
     let pals = [];
     let indeces = []; // indeces of colors to try out error diffusion without
     let pal = Glob.palette;
 
     for (let i = 0; i < pal.length; ++i) {
-        if (pal[i].available  && pal[i].tryDitherWo) {
+        if (pal[i].available && pal[i].tryDitherWo) {
             indeces.push(i);
-    }   }
+        }
+    }
 
     indeces.forEach(function (index) {
         // add to PALS palette of all colors except for index
         let currentPal = [];
 
         for (let i = 0; i < pal.length; ++i) {
-            if (pal[i].available && i != index)
+            if (pal[i].available && i !== index)
                 currentPal.push(pal[i].rgb);
         }
 
@@ -140,9 +145,9 @@ function resetColorNamesCache() {
     colorNameByRgb.letterMap = null;
 }
 
-// returns color name by its rgb value
-// \param l - get letter (notation) instad of full color
-// \param rgbJoined - rgb joined by semicolon
+// @returns color name by its rgb value
+// @param l - get letter (notation) instad of full color
+// @param rgbJoined - rgb joined by semicolon
 function colorNameByRgb(rgbJoined, l = false) {
     if (null == colorNameByRgb.colorMap || null == colorNameByRgb.letterMap) {
         // init
@@ -165,7 +170,7 @@ resetColorNamesCache(); // reset cache on init
 
 /* palette display funcs */
 
-// returns palette editor div
+// @returns palette editor div
 function jqPaletteLay() {
     // displays Global.palette on the screen
     function updatePalOnScreen() {
@@ -249,9 +254,9 @@ function jqPaletteLay() {
 }
 
 // load palette from file
-// \param onSuccess - callback on successful palette update
+// @param onSuccess - callback on successful palette update
 function openLoadPalDialog(onSuccess) {
-    let fileInput = $('<input id="csvFileInput" type="file" style="display: none;" accept=".pal" hidden/>')
+    $('<input id="csvFileInput" type="file" style="display: none;" accept=".pal" hidden/>')
         .change(function () {onUploadPalFile($(this), onSuccess)})
         .trigger('click')
 }
@@ -271,7 +276,7 @@ function onUploadPalFile(fileinput, onSuccess) {
         try {
             let json = JSON.parse(jsonString);
             let validationRes = validateJsonPal(json);
-            if (validationRes.valid == false)
+            if (!validationRes.valid)
                 return palFail(validationRes.msg);
 
             Glob.palette = json;
@@ -285,8 +290,8 @@ function onUploadPalFile(fileinput, onSuccess) {
 }
 
 
-// returns true if palette in JSON format is valid. Helpful for checking loaded palette
-// returns object {valid: boolean; msg: string}: msg is reason why invalid
+// @returns true if palette in JSON format is valid. Helpful for checking loaded palette
+// @returns object {valid: boolean; msg: string}: msg is reason why invalid
 function validateJsonPal(pal) {
     function nope(reason) {
         return {"valid": false, "msg": reason};
@@ -295,7 +300,7 @@ function validateJsonPal(pal) {
     if (!Array.isArray(pal))
         return nope("Is not array");
 
-    if (pal.length == 0)
+    if (pal.length === 0)
         return nope("Empty palette");
 
     const properties = ["available", "rgb", "name", "grad", "tryDitherWo"];
@@ -308,7 +313,7 @@ function validateJsonPal(pal) {
                 return nope("Color #" + i + " doesn't have property \"" + prop + "\"");
         }
         // check if color is rgb
-        if (!Array.isArray(c["rgb"]) || c["rgb"].length != 3
+        if (!Array.isArray(c["rgb"]) || c["rgb"].length !== 3
                 || (typeof c["rgb"][0] !== "number")
                 || (typeof c["rgb"][1] !== "number")
                 || (typeof c["rgb"][2] !== "number")) {
@@ -328,8 +333,8 @@ function validateJsonPal(pal) {
         return {valid: true};
 }
 
-// \param pal - palette in JSON format (see Glob.palette)
-// \param advanced = show advanced options
+// @param pal - palette in JSON format (see Glob.palette)
+// @param advanced = show advanced options
 function paletteToJqTable(pal, advanced = false) {
     let table = $("<table class='table'></table>");
 

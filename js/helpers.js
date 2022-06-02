@@ -3,7 +3,7 @@ function clamp(x, min, max) {
     return Math.min(max, Math.max(x, min))
 }
 
-// shuffles array in place. \param a an array containing the items.
+// shuffles array in place
 function shuffle(a) {
     var j, x, i;
     for (i = a.length - 1; i > 0; i--) {
@@ -16,7 +16,7 @@ function shuffle(a) {
 }
 
 // shows modal bootstrap dialog
-// \param content: either string or jquery object
+// @param content: either string or jquery object
 // fullscreen: display fullscreen modal
 function showBsModal(content, title = 'Info', fullscreen = false, id='newBsModal') {
     let addClass = fullscreen ?  'modal-full' : '';
@@ -26,7 +26,7 @@ function showBsModal(content, title = 'Info', fullscreen = false, id='newBsModal
     });
     $("#currentModalBody").append( (typeof content === 'string') ? $("<p>" + content + "</p>") : content );
     return div;
-};
+}
 
 var jqCol = (content, maxWidth) => {return $("<div class='col'></div>").append(content).css('max-width', maxWidth);};
 var jqMarginAuto = (content) => {return $("<div></div>").append(content).css('margin', 'auto');};
@@ -89,14 +89,14 @@ function humanFileSize(bytes, si = true) {
     return bytes.toFixed(1)+' '+units[u];
 }
 
-// returns current date in format DDMMYYYY
+// @returns current date in format DDMMYYYY
 function getCurrentDateString() {
     let t = (new Date());
     return '' + t.getDate() + '-' + t.getMonth() + '-' + t.getFullYear();
 }
 
-// \returns name of the file from full path
-// \param path - path to file
+// @returns name of the file from full path
+// @param path - path to file
 function filenameFromPath(path) {
     let parts = path.split(/[\/\\\.]/);
     // return a thing second to last
@@ -105,15 +105,15 @@ function filenameFromPath(path) {
 
 // download file with plain text in it
 function downloadPlainText(text, fileName) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', fileName);
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', fileName);
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
+    element.style.display = 'none';
+    document.body.appendChild(element);
 
-  element.click();
+    element.click();
 
-  document.body.removeChild(element);
+    document.body.removeChild(element);
 }
 

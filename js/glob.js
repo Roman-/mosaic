@@ -37,7 +37,7 @@ Glob.defaultBlockHeightPixels = 8;
 
 Glob.plasticColor = '#eee'; // color of cube plastic (border around stickers)
 
-// returns array of chooseSet objects.
+// @returns array of chooseSet objects.
 // chooseSet object represents a method with its parameters, that will be used to mosaic from the initial picture.
 // Each chooseSet generates N pictures on the first choosing step, when user crops the picture. N is number
 // of options specified for this method in chooseSet.opts
@@ -46,42 +46,48 @@ Glob.chooseSets = function () {
         // add a few gradients. The opts are purely heuristical :(
         {
             name: 'Portrait',
-            method: 'grad',
+            method: Methods.GRADIENT,
             palette: getGradPalette(),
-            opts: initialRangePopulation(getGradPalette(), [0.55, 0.65, 0.75], [0.35, 0.45])
+            opts: initialRangePopulation(getGradPalette(), [0.55, 0.65, 0.75], [0.35, 0.45]),
+            displayName: 'Gradient'
         },
         // errorDiffusion with full palette: one is super dithered and another one more smooth
         {
             name: 'errorDiffusion',
-            method: 'errorDiffusion',
+            method: Methods.ERROR_DIFFUSION,
             palette: getFullPalette(),
-            opts: [1.9, 6.0]
+            opts: [1.9, 6.0],
+            displayName: 'ED method, all colors'
         },
     ];
 
     // for each color that is marked "try ED", generate a separate errorDiffusion thing WITHOUT this color
-    let edPals = getAllDitherPalettes();
+    let edPals = getAllEdDitherPalettes();
+    let edPalIndex = 1;
     edPals.forEach(function (pal) {
         chooseSets.push({
             name: 'errorDiffusionSpecial',
-            method: 'errorDiffusion',
+            method: Methods.ERROR_DIFFUSION,
             palette: pal,
-            opts: [1.9, 6.0]
+            opts: [1.9, 6.0],
+            displayName: ('ED method, colorset ' + (edPalIndex++))
         });
     });
     // add ordered dithering
     chooseSets.push({
         name: 'Ordered',
-        method: 'ordered',
+        method: Methods.ORDERED,
         palette: getFullPalette(),
-        opts: [0.0, 1.3]
+        opts: [0.0, 1.3],
+        displayName: 'Ordered dithering'
     });
     // add 'closest color' as an option. On the layout however, it doesn't look different from the last "ordered dithering"
     chooseSets.push({
         name: 'Closest',
-        method: 'closestColor',
+        method: Methods.CLOSEST_COLOR,
         palette: getFullPalette(),
-        opts: [0]
+        opts: [0],
+        displayName: 'Closest color'
     });
     return chooseSets;
 }
