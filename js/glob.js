@@ -9,10 +9,8 @@ Glob.cubeDimen = null; // using 3x3x3 cubes
 Glob.totalCubes = null; // total amount of cubes we can use
 Glob.img = null; // <img> element with dataURI. Has .height and .width
 Glob.canvas = null; // jquery canvas that we use to draw our image on
-Glob.totalGradSteps = 3; // number of steps for grad method selection
 Glob.imageData = null; // ImageData object which we'll eventually make PDF split of
 Glob.imgFileName = ""; // uploaded file name
-Glob.maxFileSizeMb = 8.0; // we don't want to give user the experience of waiting for large image to be processed
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
 Glob.maxCubesForMiniature = 1400; // heuristics for maximum cubes (pixels/9) that a miniature file can have
 
@@ -78,7 +76,7 @@ Glob.chooseSets = function () {
         name: 'Ordered',
         method: Methods.ORDERED,
         palette: getFullPalette(),
-        opts: [0.0, 1.3],
+        opts: [-15, -10, -5, 0.0, 1.5],
         displayName: 'Ordered dithering'
     });
     // add 'closest color' as an option. On the layout however, it doesn't look different from the last "ordered dithering"

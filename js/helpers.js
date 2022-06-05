@@ -28,8 +28,7 @@ function showBsModal(content, title = 'Info', fullscreen = false, id='newBsModal
     return div;
 }
 
-var jqCol = (content, maxWidth) => {return $("<div class='col'></div>").append(content).css('max-width', maxWidth);};
-var jqMarginAuto = (content) => {return $("<div></div>").append(content).css('margin', 'auto');};
+let jqCol = (content, auto = true) => {return $("<div>").addClass(auto ? "col-auto" : "col").append(content);};
 
 function exit( status ) {
     // http://kevin.vanzonneveld.net
@@ -117,3 +116,36 @@ function downloadPlainText(text, fileName) {
     document.body.removeChild(element);
 }
 
+/// @param onSuccess - function with one argument - response
+/// @param onError - function with one argument - error string
+function sendPost(url, params, onSuccess, onError = null) {
+    if (!onError)
+        onError = function (res) {console.error(res);}
+    if (!onSuccess)
+        onSuccess = function (res) {console.log("sending post result: ", res);}
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.timeout = 5000; // time in milliseconds
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                onSuccess(xhr.responseText);
+            } else {
+              onError("XMLHttpRequest status "+xhr.status+": " + xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function (e) {
+        onError(xhr.statusText);
+    };
+    xhr.ontimeout = function (e) {
+      onError("Connection timeout (" + (xhr.timeout / 1000) + " seconds)");
+    };
+    xhr.send(params);
+}
+
+// @returns FontAwesome icon with specified name
+function fa(name) {
+    return $("<i>").addClass(`fa fa-${name}`);
+}

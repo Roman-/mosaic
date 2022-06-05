@@ -179,7 +179,7 @@ function jqPaletteLay() {
         resetColorNamesCache();
     }
 
-    var advanced = false;
+    let advanced = false;
     let div = $("<div></div>");
 
     let panel = $("<div></div>").addClass('row');
@@ -194,20 +194,19 @@ function jqPaletteLay() {
             Glob.palette = JSON.parse(JSON.stringify(Glob.defaultPalette));
             updatePalOnScreen();
         });
-    let btnResetWrap = jqCol(btnReset, '16em').css('padding', colPadding);
+    let btnResetWrap = jqCol(btnReset).css('padding', colPadding);
 
-    let btnDone = $("<button></button>")
+    let btnDone = $("<button>")
         .html('Done')
         .addClass('btn btn-success m-1 form-control')
         .click(function () {
             let proceed = (null != Glob.img) && (Glob.cubeDimen > 0) && (Glob.imgFileName.length > 0);
             let returnLayout = proceed ? loChoose : loDropImage;
-            showLoadingSpinner();
-            setTimeout(returnLayout, 10);
+            doAfterLoadingSpinner(returnLayout);
         });
-    let btnDoneWrap = jqCol(btnDone, 'none').css('padding', colPadding);
+    let btnDoneWrap = jqCol(btnDone, false).css('padding', colPadding);
 
-    var btnAdvanced = $("<button></button>")
+    let btnAdvanced = $("<button></button>")
         .html('Advanced settings')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
@@ -218,34 +217,34 @@ function jqPaletteLay() {
             btnSaveWrap.show();
             btnLoadWrap.show();
         });
-    let btnAdvancedWrap = jqCol(btnAdvanced, '16em').css('padding', colPadding);
+    let btnAdvancedWrap = jqCol(btnAdvanced).css('padding', colPadding);
 
-    var btnLoad = $("<button></button>")
-        .html('Load from file&hellip;')
+    let btnLoad = $("<button></button>")
+        .append(fa("folder-open"), ' Load from file&hellip;')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             openLoadPalDialog(updatePalOnScreen);
         });
-    let btnLoadWrap = jqCol(btnLoad, '12em').css('padding', colPadding).hide();
+    let btnLoadWrap = jqCol(btnLoad).css('padding', colPadding).hide();
 
-    var btnSave = $("<button></button>")
-        .html('Download this palette')
+    let btnSave = $("<button></button>")
+        .append(fa("download"), ' Download')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {downloadPlainText(JSON.stringify(Glob.palette), "My palette.pal")})
-    let btnSaveWrap = jqCol(btnSave, '16em').css('padding', colPadding).hide();
+    let btnSaveWrap = jqCol(btnSave).css('padding', colPadding).hide();
 
-    var btnAddColor = $("<button></button>")
-        .html('<i class="fa fa-plus"></i> Add color')
+    let btnAddColor = $("<button></button>")
+        .append(fa("plus"), ' Add color')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             Glob.palette.push(newColor());
             updatePalOnScreen();
         });
-    let btnAddColorWrap = jqCol(btnAddColor, '12em').css('padding', colPadding).hide();
+    let btnAddColorWrap = jqCol(btnAddColor).css('padding', colPadding).hide();
 
     panel.append(btnResetWrap, btnAddColorWrap, btnAdvancedWrap, btnSaveWrap, btnLoadWrap, btnDoneWrap);
 
-    var tableContainer = $("<div></div>");
+    let tableContainer = $("<div></div>");
     updatePalOnScreen();
 
     div.append(tableContainer, panel);
@@ -268,8 +267,8 @@ function onUploadPalFile(fileinput, onSuccess) {
         showBsModal(msg, 'Failed to load palette');
     }
 
-    var file = fileinput[0].files[0];
-    var reader  = new FileReader();
+    let file = fileinput[0].files[0];
+    let reader  = new FileReader();
     reader.addEventListener("load", function () {
         let paletteName = filenameFromPath(file.name);
         let jsonString = reader.result;
@@ -336,31 +335,36 @@ function validateJsonPal(pal) {
 // @param pal - palette in JSON format (see Glob.palette)
 // @param advanced = show advanced options
 function paletteToJqTable(pal, advanced = false) {
-    let table = $("<table class='table'></table>");
+    let headersTr = $("<tr>");
+    let table = $("<table class='table'></table>").append(headersTr);
 
-    let headersHtml = "<th>Available "+questionTt(Txt.availableText)+"</th><th>Name</th><th>Value</th>";
+    headersTr.append(
+        $("<th>").append(questionTt(Txt.availableText)).addClass("shrink"),
+        $("<th>").addClass("px-1").append("Name"),
+        $("<th>").addClass("px-1 shrink").append("Value"));
 
     if (advanced) {
-        headersHtml += "<th>Letter</th>"+
-                "<th>Use in gradient "+questionTt(Txt.gradText)+"</th><th>Try ED "+questionTt(Txt.edText)+"</th>";
+        headersTr.append(
+            $("<th>").addClass("px-1").append("Letter"),
+            $("<th>").addClass("px-1 text-nowrap").append("Use in gradient", questionTt(Txt.gradText)),
+            $("<th>").addClass("px-1 text-nowrap").append("Try ED", questionTt(Txt.edText)));
     }
 
-    table.append($("<tr>" + headersHtml + "</tr>"));
     // insert tr
     pal.forEach(function (col) {
         let tr = $("<tr></tr>");
 
-        var cbAllow = $("<input type='checkbox'/>")
-            .addClass('form-control')
+        let cbAllow = $("<input type='checkbox'/>")
+            .addClass('form-check-input big-checkbox mx-1')
             .prop('checked', col.available)
             .attr('title', 'Use this color')
             .on('input', function () {
                 col.available = $(this).prop('checked');
                 toggleAvailable(col.available);
             });
-        tr.append($("<td></td>").append(cbAllow));
+        tr.append($("<td>").addClass("shrink").append(cbAllow));
 
-        var inputName = $("<input type='text'/>")
+        let inputName = $("<input type='text'/>")
             .val(col.name)
             .attr('size', 25)
             .attr('title', 'Latin letters only')
@@ -379,17 +383,17 @@ function paletteToJqTable(pal, advanced = false) {
         tr.append($("<td></td>").append(inputName));
 
         let jqCol = jQuery.Color(col.rgb)
-        var inputColor = $("<input type='color'/>")
-            .addClass('form-control')
+        let inputColor = $("<input type='color'/>")
+            .addClass('form-control form-control-color')
             .val(jqCol.toHexString())
             .attr('title', 'Edit color')
             .on('input', function () {
                 let c = jQuery.Color($(this).val());
                 col.rgb = [c.red(), c.green(), c.blue()]
             });
-        tr.append($("<td></td>").append(inputColor));
+        tr.append($("<td></td>").addClass("shrink").append(inputColor));
 
-        var inputLetter = $("<input type='text'/>")
+        let inputLetter = $("<input type='text'/>")
             .val(col.notation)
             .attr('size', 5)
             .attr('title', 'Short name (notation)')
@@ -408,25 +412,25 @@ function paletteToJqTable(pal, advanced = false) {
         if (advanced)
             tr.append($("<td></td>").append(inputLetter));
 
-        var cbGrad = $("<input type='checkbox'/>")
-            .addClass('form-control')
+        let cbGrad = $("<input type='checkbox'/>")
+            .addClass('form-check-input big-checkbox')
             .prop('checked', col.grad)
             .on('input', function () {
                 col.grad = $(this).prop('checked');
             });
         if (advanced)
-            tr.append($("<td></td>").append(cbGrad));
+            tr.append($("<td></td>").addClass("text-center shrink").append(cbGrad));
 
-        var cbWo = $("<input type='checkbox'/>")
-            .addClass('form-control')
+        let cbWo = $("<input type='checkbox'/>")
+            .addClass('form-check-input big-checkbox')
             .prop('checked', col.tryDitherWo)
             .on('input', function () {
                 col.tryDitherWo = $(this).prop('checked');
             });
         if (advanced)
-            tr.append($("<td></td>").append(cbWo));
+            tr.append($("<td></td>").addClass("text-center shrink").append(cbWo));
 
-        var elementsToEnable = [inputName, inputColor, inputLetter, cbGrad, cbWo];
+        let elementsToEnable = [inputName, inputColor, inputLetter, cbGrad, cbWo];
         function toggleAvailable(a) {
             if (a)
                 tr.removeClass('bg-light');

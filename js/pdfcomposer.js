@@ -106,12 +106,25 @@ function drawCubesBlock(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, 
 
                         // letter inside square
                         if (Glob.pdfDrawLetters) {
-                            letterBr = (rgb[0] + rgb[1] + rgb[2] < 128) ? 255 : 0; // dark on bright BG and vice-versa
+                            let bgIsDark = (rgb[0] + rgb[1] + rgb[2] < 128);
+                            let letterRgb;
+                            if (Glob.pdfBwPrinter) {
+                                let brightness = bgIsDark ? 255 : 0; // dark on bright BG and vice-versa
+                                letterRgb = [brightness, brightness, brightness];
+                            } else {
+                                // smooth color
+                                const addValue = 30;
+                                letterRgb = [
+                                    clamp(rgb[0] + (bgIsDark ? addValue : -addValue), 0, 255),
+                                    clamp(rgb[1] + (bgIsDark ? addValue : -addValue), 0, 255),
+                                    clamp(rgb[2] + (bgIsDark ? addValue : -addValue), 0, 255),
+                                ];
+                            }
                             const padding = stickerSize/10;
                             let rect = {x: cubePosX + stickerJ * stickerSize + padding,
                                         y: cubePosY + stickerI * stickerSize + padding,
                                         w: stickerSize - 2*padding, h: stickerSize - 2*padding};
-                            doc.setTextColor(letterBr,letterBr,letterBr);
+                            doc.setTextColor(letterRgb[0], letterRgb[1], letterRgb[2]);
                             let letter = colorNameByRgb(rgb.join(';'), true);
                             drawTextInRect(doc, letter, true, rect.x, rect.y, rect.w, rect.h);
                         }

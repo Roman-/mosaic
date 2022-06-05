@@ -8,23 +8,48 @@ function showLoadingSpinner() {
     $("#mainLayout").html('<br><div class="text-center"> <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;"> <span class="sr-only">Loading...</span> </div> </div>');
 }
 
+// shows loading spinner and launches the callback afterwards
+function doAfterLoadingSpinner(callback) {
+    showLoadingSpinner();
+    setTimeout(callback, 10);
+}
+
 // main layout with "drop image" thing
 function loDropImage() {
     if (Glob.cropper)
         Glob.cropper.destroy()
 
-    let chooseImgBtn = $("<button class='btn btn-primary' id='chooseFileBtn'></button>")
-        .html("Upload image <i class='fa fa-upload'></i>")
-        .click(uploadImgClicked);
-
     let h1 = $("<h1></h1>").html("Welcome to Bestsiteever Mosaic!");
     let subtitle = $("<h4></h4>").html("Free Rubik's cube mosaic builder optimized for portraits");
-    let dropZone = $('<div class="upload-drop-zone" id="dropZone"></div>')
-        .append(chooseImgBtn, "<span id='dropLabel'> or drag it here</span>");
+
+    let dropZoneConfig = {
+        callback: onImageHasBeenLoaded,
+        maxFileSizeMb: 10.0,
+        initHtmlAcceptDrop: true
+    };
+    let dropZone = jqDropZone(dropZoneConfig);
 
     let div = $("<div class='container'></div>").append(h1, subtitle, dropZone, aboutText());
     $("#mainLayout").html(div);
     setTitle('<span class="text-secondary">Bestsiteever Mosaic</span>');
+
+    $("#videoTutorialWrap").empty().append(
+        $("<iframe>")
+            .css("width", "70vw")
+            .css("height", "40vw")
+    )
+
+    setTimeout(()=>{
+        $("#videoTutorialWrap").empty().append(
+            $("<iframe>")
+                .css("width", "70vw")
+                .css("height", "40vw")
+                .attr("src", "https://www.youtube.com/embed/MhVSOkys8pI")
+                .attr("title", "YouTube video player")
+                .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
+                .prop("autofullscreen", true)
+        )
+    }, 100)
 }
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
@@ -33,7 +58,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
         function getUiRangesArray() {
-            if ($("input#rang0").length == 0) {
+            if ($("input#rang0").length === 0) {
                 console.error("getRangesArray: no ranges inputs");
             }
             let arr = [];
@@ -49,12 +74,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         Glob.imageData = drawMosaicOnCanvas(Glob.canvas, chooseOptions.palette, chooseOptions.method, uiOpt, !asCubeStickers);
     }
 
-    // info label
-    let w = (Glob.pixelWidth/Glob.cubeDimen);
-    let h = (Glob.pixelHeight/Glob.cubeDimen);
-    let label = w + " &times; " + h + " = <b>" + (w*h) + "</b> cubes.";
-
-    Glob.canvas = $("<canvas></canvas>")
+    Glob.canvas = $("<canvas>")
         .css('border', '1px solid black')
         .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
         .addClass('col-6');
@@ -62,8 +82,8 @@ function loAdjustPortrait(chooseOptions, opt) {
         .attr('src', Glob.img.src)
         .css('vertical-align', 'inherit')
         .addClass('col-6');
-    editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
-        .html("<i class='fa fa-edit'></i> edit pixel-by-pixel").click(editPpClicked);
+    let editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
+        .append(fa("edit"), " edit pixel-by-pixel").click(editPpClicked);
     let underMiniDiv = $("<div class='col-6'></div>").append(editPixelsBtn).css('margin-left', '50%');
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
@@ -78,9 +98,11 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     // @returns div with image adjustments spinners
     function buildRangesDiv() {
-        if (chooseOptions.method === Methods.GRADIENT) {
-            let rangesDiv = $("<div></div>");
+        let rangesDiv = $("<div></div>");
+        if (!chooseOptions.opts || chooseOptions.opts.length === 0)
+            return rangesDiv ;
 
+        if (chooseOptions.method === Methods.GRADIENT) {
             // @returns color prefix for input spinner
             function inputPrefix(i) {
                 let col = 'rgb(' + chooseOptions.palette[i][0] + ',' + chooseOptions.palette[i][1] + ',' + chooseOptions.palette[i][2] + ');';
@@ -99,13 +121,12 @@ function loAdjustPortrait(chooseOptions, opt) {
             }
             return rangesDiv;
         } else { // if method != GRADIENT
-            let rangesDiv = $("<div></div>")
-                .attr('title', 'grain');
+            rangesDiv.attr('title', 'grain');
             let inputRatio = $("<input type='number'>")
-                .attr('min', -2).attr('max', 1500)
+                .attr('min', -50).attr('max', 1500)
                 .val(opt)
                 .attr('id', 'optRatio')
-                .attr('step', 0.05)
+                .attr('step', 0.1)
                 .attr('data-decimals', 2)
                 .attr('data-prefix', 'G')
                 .attr('title', 'grain')
@@ -117,7 +138,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
 
     // options div
-    let plasticColorSelect = $("<select id='plasticColor' class='form-control my-1'></select>").change(function () {
+    let plasticColorSelect = $("<select id='plasticColor' class='form-select my-1'></select>").change(function () {
         Glob.plasticColor = $("#plasticColor").find('option:selected').val();
         redrawMosaicWithUiRanges(true);
     });
@@ -130,18 +151,11 @@ function loAdjustPortrait(chooseOptions, opt) {
     Glob.canvasBlur = new CanvasFastBlur();
     Glob.canvasBlur.initCanvas(Glob.canvas[0]);
     let blurBtn = $("<button class='btn btn-outline-info form-control'></button>")
-        .html("<i class='fa fa-glasses fa-fw'></i> Blur preview")
+        .append(fa("glasses").addClass("fa-fw"), " Blur preview")
         .attr('title', 'Blur')
         .click(function () {
             Glob.canvasBlur.gBlur(3);
         })
-
-    let startAgainBtn = $("<button class='btn btn-primary form-control my-1'></button>")
-                            .html("<i class='fa fa-history'></i> Back to selection")
-                            .click(function () {
-                                showLoadingSpinner();
-                                setTimeout(loChoose, 10);
-                            });
 
     let drawLettersCb = $("<input type='checkbox'/>").on('input', function () {
         let checked = $(this).prop('checked');
@@ -202,36 +216,43 @@ function loAdjustPortrait(chooseOptions, opt) {
             bottomTopLabel,
             drawLettersLabel,
             dontUseColorLabel,
-            "<hr>",
-            startAgainBtn,
         );
 
-    let collapseBtn = $("<button class='btn btn-outline-secondary form-control' data-toggle='collapse' data-target='#collapsedOpts'></button>")
+    let collapseBtn = $("<button class='btn btn-outline-secondary form-control' data-bs-toggle='collapse' data-bs-target='#collapsedOpts'></button>")
         .html('More options <i class="fa fa-angle-down"></i>');
 
     let rightPanel = $("<div></div>").addClass('col-sm-4');
     let pdfBtnText = "<i class='fa fa-download'></i> Download PDF";
-    var makePdfBtn = $("<button class='btn btn-success form-control'></button>")
+    let makePdfBtn = $("<button class='btn btn-success form-control'></button>")
         .css('height', '3.5em')
         .html(pdfBtnText)
         .click(function () {
             makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);;
             redrawMosaicWithUiRanges(); // in case we've blurred canvas or something
-            setTimeout(function () {
+            setTimeout(() => {
                 generatePdf();
                 makePdfBtn.html(pdfBtnText);
                 setTitle('Your PDF is ready <i class="fa fa-rocket"></i>');
                 underUnderDiv.empty();
                 setTimeout(()=>{makePdfBtn.prop("disabled", false)}, 500);
             }, 50);
-
         });
+    let startAgainBtn = $("<button class='btn btn-outline-primary form-control'></button>")
+        .append(fa("history"), " Go back")
+        .click(()=>doAfterLoadingSpinner(loChoose));
+    let newMosaicBtn = $("<button class='btn btn-outline-primary form-control'></button>")
+        .append(fa("plus"), " New mosaic")
+        .click(loDropImage);
+
 
     rightPanel.append(
-            buildRangesDiv(),
-            collapseBtn,
-            collapsedDiv,
-            makePdfBtn,
+        makePdfBtn,
+        startAgainBtn,
+        newMosaicBtn,
+        $("<hr>"),
+        buildRangesDiv(),
+        collapseBtn,
+        collapsedDiv,
     );
 
     let row = $("<div class='row'></div>").append(imagesDiv, rightPanel);
@@ -259,10 +280,7 @@ function loDitherAdjustment(chooseOptions, opt) {
         let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
             .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
             .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.7)) // <- resize
-            .click(function () {
-                showLoadingSpinner();
-                setTimeout(function () {loAdjustPortrait(chooseOptions, opt);}, 1);
-            });
+            .click(() => doAfterLoadingSpinner(()=>loAdjustPortrait(chooseOptions, opt)));
 
         // draw image with ranges
         drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt);
@@ -278,11 +296,11 @@ function loCropper() {
     // crop, set pixel size and build mosaic
     function onCropImage() {
         setTitle('Working...');
-        let onImageCroppedLoaded = function () {
+        function onImageCroppedLoaded() {
             let w = widthInput.val();
             let h = heightInput.val();
             Glob.cropper.destroy();
-            Glob.cubeDimen = parseInt($("#cubeDimen").val());
+            Glob.cubeDimen = parseInt(cubeDimenSelect.val());
             Glob.pixelWidth = w * Glob.cubeDimen;
             Glob.pixelHeight = h * Glob.cubeDimen;
 
@@ -293,22 +311,20 @@ function loCropper() {
             saveLocal('initialCubeHeight', h);
             saveLocal('initialCubeDimen', Glob.cubeDimen);
 
-            showLoadingSpinner();
-            setTimeout(loChoose, 1);
+            loChoose();
         }
 
-        Glob.img.removeEventListener('load', onImageHasBeenLoaded);
-        Glob.img.addEventListener('load', onImageCroppedLoaded);
+        $(Glob.img).off('load').on('load', onImageCroppedLoaded); // TODO I think off('load') wouldn't work
         Glob.img.src = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
     }
-    let cubeDimenSelect = $("<select id='cubeDimen' class='form-control'></select>");
+    let cubeDimenSelect = $("<select id='cubeDimen' class='form-select'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {
         let sizeHtml = (d === 1) ? "1 pixel" : d+'x'+d+'x'+d;
         cubeDimenSelect.append($("<option></option>").val(d).html(sizeHtml));
     });
     cubeDimenSelect.val(Glob.initialCubeDimen);
 
-    let imgTag = $("<img/>")
+    let imgTag = $("<img>")
         .attr('src', Glob.img.src)
         .css('vertical-align', 'inherit')
         .css('max-width', '100%')
@@ -323,35 +339,43 @@ function loCropper() {
         let w = widthInput.val();
         let h = heightInput.val();
         if (whWithinBoundaries(w,h)) {
-            $("#totalCubesSpan").html(w*h);
+            equalSpan.html(w*h);
             Glob.cropper.setAspectRatio(w/h);
         } else {
-            $("#totalCubesSpan").html("...");
+            equalSpan.html("...");
         }
     }
-    var widthInput = $("<input type='number' size='3'>")
+    let widthInput = $("<input type='number' size='3'>")
         .attr('title', 'width (cubes)')
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeWidth).on('input', changeAspectRadio);
-    var heightInput = $("<input type='number' size='3'>")
+    let heightInput = $("<input type='number' size='3'>")
         .attr('title', 'height (cubes)')
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeHeight).on('input', changeAspectRadio);
-    let equalWrap = $("<div id='totalCubesSpan'></div>").css('font-weight', 'bold').css('margin', 'auto 0.4em');
-    let nextBtn = $("<button class='btn btn-success form-control' id='nextBtn'></button>")
-        .html("Next <i class='fa fa-arrow-alt-circle-right'></i>")
+    let equalSpan = $("<span>").css('font-weight', 'bold');
+    let nextBtn = $("<button class='btn btn-success form-control'></button>")
+        .append("Next ", fa("arrow-alt-circle-right"))
         .click(function (e) {
             e.preventDefault();
+            $(this).html("Cropping...");
             if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
                 return widthInput.focus();
             if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
                 return heightInput.focus();
-            $(this).html("Cropping..."); setTimeout(onCropImage, 1)
+            doAfterLoadingSpinner(onCropImage);
+            //setTimeout(onCropImage, 1);
     });
 
-    let panel = $("<form></form>").append($("<div class='form-group row'></div>").css('margin-bottom', '0').append(
-        jqCol(widthInput, '11em'), jqMarginAuto("&times;"),
-        jqCol(heightInput, '11em'), jqMarginAuto("="), equalWrap,
-        jqMarginAuto("cubes"), jqCol(cubeDimenSelect, '11em'), jqCol(nextBtn, 'none'))
-    ).css('padding', '0.5em');
+    let panel = $("<div>").append(
+        $("<div class='row g-1 align-items-center'></div>").css('margin-bottom', '0').append(
+            $("<div>").addClass("col-auto").css("max-width", "11em").append(widthInput.addClass("form-control")),
+            $("<div>").addClass("col-auto").append("&times;"),
+            $("<div>").addClass("col-auto").css("max-width", "11em").append(heightInput.addClass("form-control")),
+            $("<div>").addClass("col-auto").html("="),
+            $("<div>").addClass("col-auto").append(equalSpan),
+            $("<div>").addClass("col-auto").html("cubes"),
+            $("<div>").addClass("col-auto").append(cubeDimenSelect),
+            $("<div>").addClass("col ps-1").append(nextBtn),
+    )).addClass("my-2");
 
     let imgWrapper = $("<div></div>").append(imgTag);
 
@@ -372,11 +396,13 @@ function loCropper() {
     widthInput.inputSpinner();
     heightInput.inputSpinner();
 
-    setTitle('Specify the number of cubes <i class="fa fa-cubes"></i> and crop the image <i class="fa fa-cut"></i>');
+    setTitle('Resize <i class="fa fa-cubes"></i> and crop <i class="fa fa-cut"></i>');
 }
 
 // layout with 1-st step choose. Displays a bunch of canvases
 function loChoose() {
+    if (getFullPalette().length < 2)
+        return loPalette();
     window.scrollTo(0,0); // for large amount of images
     let canvasesDiv = $("<div class='text-center'></div>");
     let canvasDisplayWidth = clamp(150, Glob.pixelWidth * 3, window.innerWidth * 0.40);
@@ -388,10 +414,7 @@ function loChoose() {
                 .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
                 .attr('title', chooseOptions.displayName)
                 .width(canvasDisplayWidth) // <- resize
-                .click(function () {
-                    showLoadingSpinner();
-                    setTimeout(function () {lo2ndChoice(chooseOptions, opt)}, 1);
-                });
+                .click(() => doAfterLoadingSpinner(() => lo2ndChoice(chooseOptions, opt)));
 
             // draw image with ranges
             drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt, true);
@@ -399,18 +422,15 @@ function loChoose() {
         })
     });
 
-    var btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
+    let btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
     $("#mainLayout").empty().append(canvasesDiv, btnChangePal);
 
     setTitle('Select the best looking picture <i class="fa fa-grip-horizontal"></i>');
 }
 
 // layout like lo2ndChoice but for gradient method
-// callnumber - number of times it has been called so far
-function loGradAdjustment(chooseOptions, opt, callNumber = 1) {
+function loGradAdjustment(chooseOptions, opt) {
     showLoadingSpinner();
-    if (callNumber > Glob.totalGradSteps)
-        return loAdjustPortrait(chooseOptions, opt);
     window.scrollTo(0,0); // for large amount of images
     let topPanel = $("<div></div>");
     let canvas = $("<canvas></canvas>")
@@ -418,17 +438,16 @@ function loGradAdjustment(chooseOptions, opt, callNumber = 1) {
         .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.40)) // <- resize
         .css('border', '1px solid #555');
     drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt);
-    let continueBtn = $("<button class='form-control btn btn-success'>Continue with this image <i class='fa fa-arrow-alt-circle-right'></i></button>")
+    let continueBtn = $("<button class='mt-1 form-control btn btn-success'></button>")
+        .append("Continue ", fa("arrow-alt-circle-right"))
         .click(function () {
-            showLoadingSpinner();
-            setTimeout(function () {loAdjustPortrait(chooseOptions, opt)}, 1);
+            doAfterLoadingSpinner(()=>loAdjustPortrait(chooseOptions, opt));
         });
 
-    let commentsDiv = $("<div class='text-muted'></div>").html("Don't worry, you will make it perfect on the next stage.");
     let canvasPart = $("<div class='col-6'></div>").append(canvas);
-    let rightPart = $("<div class='col-6'></div>").append(continueBtn, commentsDiv);
+    let rightPart = $("<div class='col-6'></div>").append(continueBtn);
     let splitter = $("<div></div>")
-        .append('<h4>Or replace it (step <b>'+callNumber + "/"+Glob.totalGradSteps+'</b>):</h4>');
+        .append('<h4>Or pick a different image:</h4>');
 
     let row = $("<div class='row'></div>").append(canvasPart, rightPart);
     topPanel.addClass('card bg-light').css('padding', '0.5em').html(row);
@@ -443,8 +462,7 @@ function loGradAdjustment(chooseOptions, opt, callNumber = 1) {
             .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
             .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.40)) // <- resize
             .click(function () {
-                showLoadingSpinner();
-                setTimeout(function () {loGradAdjustment(chooseOptions, newOpt, callNumber + 1);}, 1);
+                doAfterLoadingSpinner(() => loGradAdjustment(chooseOptions, newOpt));
             });
 
         // draw image with ranges
@@ -462,16 +480,15 @@ function lo2ndChoice(chooseOptions, opt) {
     window.scrollTo(0, 0); // for large amount of images
     switch  (chooseOptions.method) {
         case Methods.GRADIENT:
-            return loGradAdjustment(chooseOptions, opt);
+            return doAfterLoadingSpinner(()=>loGradAdjustment(chooseOptions, opt));
         case Methods.CLOSEST_COLOR:
-            return loAdjustPortrait(chooseOptions, opt);
+            return doAfterLoadingSpinner(() => loAdjustPortrait(chooseOptions, opt));
         case Methods.ATKINSON:
         case Methods.ORDERED:
         case Methods.ERROR_DIFFUSION:
-            return loDitherAdjustment(chooseOptions, opt);
+            return doAfterLoadingSpinner(()=>loDitherAdjustment(chooseOptions, opt));
         default: console.error("unknown chooseOptions.method", chooseOptions);
     }
-
 }
 
 // @returns jquery div with intro text
@@ -522,91 +539,53 @@ function downloadGlobImageData() {
     link.get(0).click();
 }
 
-// 'upload image' button clicked
-function uploadImgClicked() {
-    $('#imgFile').val(null).trigger("click");
-}
-
 // for debugging purposes: call this function to imitate user uploading an image
-function fakeFileUpload(imageUrl = "data/test.png") {
+function fakeFileUpload(imageUrl = "data/test.jpg") {
     Glob.cubeDimen = 3;
     Glob.pixelWidth = 25*Glob.cubeDimen;
     Glob.pixelHeight = 25*Glob.cubeDimen;
     Glob.plasticColor = 'red';
     Glob.img = new Image();
     Glob.img.crossOrigin = "Anonymous";
-    Glob.img.addEventListener('load', function () {loChoose()});
+    Glob.img.addEventListener('load', () => doAfterLoadingSpinner(loChoose));
     Glob.img.src = imageUrl;
 }
 
-// on image file uploaded
-function onUploadImgChange(file = null) {
-    $("#dropZone").removeClass('drop');
-    if (file == null)
-        file = $('#imgFile')[0].files[0];
-
-    if (!file || !file.size)
-        return;
-
-    let maxFilesize = Glob.maxFileSizeMb * 1e6;
-    if (file.size > maxFilesize) {
-        $("#dropLabel").html(' ' + file.name + ' is too big ('+humanFileSize(file.size)+') &#128546;');
-        $("#chooseFileBtn").html('Upload image (max. ' + humanFileSize(maxFilesize) + ')');
-        return;
-    }
-
-    if (file.type.indexOf("image/") !== 0)
-        return $("#dropLabel").html(file.name + ' is not an image');
-
-    showLoadingSpinner();
-
-    var reader  = new FileReader();
-    reader.addEventListener("load", function () {
-        Glob.img = new Image();
-        Glob.img.src = reader.result;
-        Glob.img.addEventListener('load', onImageHasBeenLoaded);
-        Glob.imgFileName = file.name;
-    }, false);
-
-    reader.readAsDataURL(file);
-}
-
 // uploaded image has been loaded completely - check if it's a miniature or a normal picture
-function onImageHasBeenLoaded() {
+function onImageHasBeenLoaded(img, fileName) {
+    //$(img).off('load'); Glob.img = img; - TODO this doesn't remove 'load' event
+    Glob.img = new Image();
+    Glob.img.src = img.src;
+    Glob.imgFileName = fileName;
     // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
     // with all sides devisible by 3
-    let isMiniature = ((Glob.img.width%3==0) && (Glob.img.height%3==0))
+    let isMiniature = ((Glob.img.width%3===0) && (Glob.img.height%3===0))
         && (Glob.imgFileName.toLowerCase().startsWith('miniature')
                || (Glob.img.width * Glob.img.height < Glob.maxCubesForMiniature * 9));
 
     if (isMiniature) {
-        onMiniatureUploaded();
+        doAfterLoadingSpinner(onMiniatureUploaded);
     } else {
-        loCropper();
+        doAfterLoadingSpinner(loCropper);
     }
 }
 
 // if user has uploaded a miniature, use closest color method to build a mosaic
 function onMiniatureUploaded() {
-    setTitle('Miniature uploaded...');
-    Glob.img.removeEventListener('load', onImageHasBeenLoaded);
+    $(Glob.img).off('load');
 
     Glob.cubeDimen = 3;
     Glob.pixelWidth = Glob.img.width;
     Glob.pixelHeight = Glob.img.height;
 
-    showLoadingSpinner();
-
     let chooseOpts = {
         name: 'Closest',
-        method: 'closestColor',
+        method: Methods.CLOSEST_COLOR,
         palette: getFullPalette(),
-        opts: [0] // only look at [r,g,b] color and not on brightness
+        opts: [] // only look at [r,g,b] color and not on brightness
     };
-    loAdjustPortrait(chooseOpts, 0);
-    setTitle("Miniature uploaded <i class='fa fa-brain'></i>");
-}
-
-function getVidEmbedCode() {
-    return `<iframe width="560" height="315" src="https://www.youtube.com/embed/MhVSOkys8pI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    doAfterLoadingSpinner(()=>{
+        loAdjustPortrait(chooseOpts, 0);
+        setTitle("Miniature uploaded");
+    });
 }

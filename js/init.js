@@ -1,9 +1,9 @@
 $(document).ready(function() {
-    initDropAccepting();
     initMenu();
     initLocalStorageVars();
 
     loDropImage();
+    // fakeFileUpload();
 });
 
 // load locally saved params, such as mosaic size etc
@@ -14,31 +14,5 @@ function initLocalStorageVars() {
 }
 
 function initMenu() {
-    $(".closeMenu").attr('data-toggle', 'collapse').attr("data-target", "#navbarNav");
-}
-
-function initDropAccepting() {
-    $("html")
-        .on('dragover', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $("#dropZone").addClass('drop');
-            return false;
-        })
-        .on('dragleave', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $("#dropZone").removeClass('drop');
-            return false;
-        })
-        .on('drop', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.originalEvent.dataTransfer && event.originalEvent.dataTransfer.files.length) {
-                onUploadImgChange(event.originalEvent.dataTransfer.files[0]);
-            } else {
-                $("#dropLabel").html('oops, something went wrong. Please use the button to upload files');
-            }
-            return false;
-        });
+    $(".closeMenu").attr('data-bs-toggle', 'collapse').attr("data-bs-target", "#navbarNav");
 }

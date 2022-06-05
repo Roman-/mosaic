@@ -67,3 +67,13 @@ a.nav-link {
 .rangeOptionCanvas:hover {
     border: 1px solid black;
 }
+.table td.shrink,
+.table th.shrink {
+    white-space: nowrap;
+    width: 1%;
+}
+
+input.big-checkbox {
+    width: 2em;
+    height: 2em;
+}
