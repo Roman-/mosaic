@@ -8,9 +8,12 @@ $(document).ready(function() {
 
 // load locally saved params, such as mosaic size etc
 function initLocalStorageVars() {
-    Glob.initialCubeWidth = loadLocal('initialCubeWidth', Glob.initialCubeWidth);
-    Glob.initialCubeHeight = loadLocal('initialCubeHeight', Glob.initialCubeHeight);
-    Glob.initialCubeDimen = loadLocal('initialCubeDimen', Glob.initialCubeDimen);
+    Glob.initialCubeWidth = loadLocalInt('initialCubeWidth', Glob.initialCubeWidth);
+    Glob.initialCubeHeight = loadLocalInt('initialCubeHeight', Glob.initialCubeHeight);
+    Glob.initialCubeDimen = loadLocalInt('initialCubeDimen', Glob.initialCubeDimen);
+    Glob.pdfDrawLetters = loadLocalBool('pdfDrawLetters', Glob.pdfDrawLetters);
+    Glob.bottomToTop = loadLocalBool('bottomToTop', Glob.bottomToTop);
+    Glob.pdfBwPrinter = loadLocalBool('pdfBwPrinter', Glob.pdfBwPrinter);
 }
 
 function initMenu() {

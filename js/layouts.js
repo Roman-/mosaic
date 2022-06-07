@@ -37,6 +37,8 @@ function loDropImage() {
         $("<iframe>")
             .css("width", "70vw")
             .css("height", "40vw")
+            .css("max-width", "1920px")
+            .css("max-height", "1080px")
     )
 
     setTimeout(()=>{
@@ -44,6 +46,8 @@ function loDropImage() {
             $("<iframe>")
                 .css("width", "70vw")
                 .css("height", "40vw")
+                .css("max-width", "1920px")
+                .css("max-height", "1080px")
                 .attr("src", "https://www.youtube.com/embed/MhVSOkys8pI")
                 .attr("title", "YouTube video player")
                 .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
@@ -153,65 +157,64 @@ function loAdjustPortrait(chooseOptions, opt) {
     let blurBtn = $("<button class='btn btn-outline-info form-control'></button>")
         .append(fa("glasses").addClass("fa-fw"), " Blur preview")
         .attr('title', 'Blur')
-        .click(function () {
-            Glob.canvasBlur.gBlur(3);
-        })
+        .click(() => Glob.canvasBlur.gBlur(3));
 
-    let drawLettersCb = $("<input type='checkbox'/>").on('input', function () {
-        let checked = $(this).prop('checked');
-        Glob.pdfDrawLetters = checked;
-
-        // make sure to draw colors if there're no letters
-        if (!checked) {
-            dontUseColorCb.prop('checked', false);
-            dontUseColorCb.trigger('input');
-        }
+    let drawLettersCb = $("<input type='checkbox'/>")
+        .prop('checked', Glob.pdfDrawLetters)
+        .on('input', () => {
+            Glob.pdfDrawLetters = drawLettersCb.prop('checked');
+            // make sure to draw colors if there're no letters
+            if (!Glob.pdfDrawLetters) {
+                dontUseColorCb.prop('checked', false);
+                dontUseColorCb.trigger('input');
+            }
     });
     let drawLettersLabel = $("<label class='form-control my-0'></label>")
         .append(drawLettersCb, " draw letters")
         .attr('title', 'Draw letters for each color in the color squares in PDF');
 
-    var dontUseColorCb = $("<input type='checkbox'/>").prop('checked', Glob.pdfBwPrinter).on('input', function () {
-        let checked = $(this).prop('checked');
-        Glob.pdfBwPrinter = checked;
+    let dontUseColorCb = $("<input type='checkbox'/>")
+        .prop('checked', Glob.pdfBwPrinter)
+        .on('input', () => {
+            Glob.pdfBwPrinter = dontUseColorCb.prop('checked');
 
-        // make sure to draw letters if no color
-        if (checked) {
-            drawLettersCb.prop('checked', true);
-            drawLettersCb.trigger('input');
-        }
+            // make sure to draw letters if no color
+            if (Glob.pdfBwPrinter) {
+                drawLettersCb.prop('checked', true);
+                drawLettersCb.trigger('input');
+            }
     });
-    var dontUseColorLabel = $("<label class='form-control my-0'></label>")
+    let dontUseColorLabel = $("<label class='form-control my-0'></label>")
         .append(dontUseColorCb, " black-and-white PDF")
         .attr('title', 'Want to print PDF on black-and-white printer?');
 
-    let bottomTopCb = $("<input type='checkbox' checked/>").on('input', function () {
-        Glob.bottomToTop = $(this).prop('checked');
-    });
+    let bottomTopCb = $("<input type='checkbox'/>")
+        .prop("checked", Glob.bottomToTop)
+        .on('input', () => Glob.bottomToTop = $(this).prop('checked'));
     let bottomTopLabel = $("<label class='form-control my-0'></label>")
         .append(bottomTopCb, " output bottom-to-top")
         .attr('title', 'In PDF, output bottom blocks first (useful when building mosaic in vertical frame)');
 
     let pdfBlocks = $("<div></div>").append(
-            $("<input type='number' min='1' max='20'></input>")
+            $("<input type='number' min='1' max='20'>")
                 .attr('title', 'Block width')
                 .attr('data-prefix', '<span class="fa fa-arrows-alt-h fa-fw"></span>')
-                .val(Glob.cubeDimen == 1 ? Glob.defaultBlockWidthPixels : Glob.defaultBlockWidthCubes)
+                .val(Glob.cubeDimen === 1 ? Glob.defaultBlockWidthPixels : Glob.defaultBlockWidthCubes)
                 .change(function () {Glob.blockWidthCubes = $(this).val();})
                 .trigger('change'),
-            $("<input type='number' min='1' max='20'></input>")
+            $("<input type='number' min='1' max='20'>")
                 .attr('title', 'Block height')
                 .attr('data-prefix', '<span class="fa fa-arrows-alt-v fa-fw"></span>')
                 .val(Glob.cubeDimen === 1 ? Glob.defaultBlockHeightPixels : Glob.defaultBlockHeightCubes)
                 .change(function () {Glob.blockHeightCubes = $(this).val();})
                 .trigger('change')
             );
-    let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'></div>").append(
+    let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'>").append(
             $("<div>Preview plastic color:</div>"),
             plasticColorSelect,
             blurBtn,
             "<hr>",
-            $("<div>PDF blocks size ("+(Glob.cubeDimen > 1 ? "cubes" : "pixels")+"):</div>"),
+            $("<div>").html("PDF blocks size ("+(Glob.cubeDimen > 1 ? "cubes" : "pixels")+"):"),
             pdfBlocks,
             bottomTopLabel,
             drawLettersLabel,
@@ -235,6 +238,11 @@ function loAdjustPortrait(chooseOptions, opt) {
                 setTitle('Your PDF is ready <i class="fa fa-rocket"></i>');
                 underUnderDiv.empty();
                 setTimeout(()=>{makePdfBtn.prop("disabled", false)}, 500);
+
+                // save preferred parameters
+                saveLocal('bottomToTop', Glob.bottomToTop);
+                saveLocal('pdfDrawLetters', Glob.pdfDrawLetters);
+                saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
             }, 50);
         });
     let startAgainBtn = $("<button class='btn btn-outline-primary form-control'></button>")
@@ -271,6 +279,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
 function loDitherAdjustment(chooseOptions, opt) {
+    console.log("lo2ndChoice(chooseOptions, opt): ", chooseOptions, opt);
     let optsPopulation = populateOpts(chooseOptions, opt);
 
     let canvasesDiv = $("<div class='text-center'></div>");
