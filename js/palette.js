@@ -108,25 +108,25 @@ function getGradPalette() {
             result.push(c.rgb);
     });
     // TODO should we always sort the result palette by darkness?
-    // One problem that might occurr is if both green (0,255,0) and blue (0,0,255) are
+    // One problem that might occur is if both green (0,255,0) and blue (0,0,255) are
     // in the palette, the user will have no control over their order.
-    // result.sort((a, b) => {return ((a[0]+a[1]+a[2]) - (b[0]+b[1]+b[2]));});
+    result.sort((a, b) => {return ((a[0]+a[1]+a[2]) - (b[0]+b[1]+b[2]));});
     return result;
 }
 
 // @returns array palettes to try out error diffusion method with
 function getAllEdDitherPalettes() {
     let pals = [];
-    let indeces = []; // indeces of colors to try out error diffusion without
+    let indexes = []; // indices of colors to try out error diffusion without
     let pal = Glob.palette;
 
     for (let i = 0; i < pal.length; ++i) {
         if (pal[i].available && pal[i].tryDitherWo) {
-            indeces.push(i);
+            indexes.push(i);
         }
     }
 
-    indeces.forEach(function (index) {
+    indexes.forEach(function (index) {
         // add to PALS palette of all colors except for index
         let currentPal = [];
 
@@ -230,7 +230,7 @@ function jqPaletteLay() {
     let btnSave = $("<button></button>")
         .append(fa("download"), ' Download')
         .addClass('btn btn-outline-primary m-1 form-control')
-        .click(function () {downloadPlainText(JSON.stringify(Glob.palette), "My palette.pal")})
+        .click(function () {downloadPlainText(JSON.stringify(Glob.palette, null, 2), "My palette.pal")})
     let btnSaveWrap = jqCol(btnSave).css('padding', colPadding).hide();
 
     let btnAddColor = $("<button></button>")
@@ -302,7 +302,7 @@ function validateJsonPal(pal) {
     if (pal.length === 0)
         return nope("Empty palette");
 
-    const properties = ["available", "rgb", "name", "grad", "tryDitherWo"];
+    const properties = ["available", "rgb", "name", "grad"];
     for (let i = 0; i < pal.length; ++i) {
         let c = pal[i];
         // check for all properties
@@ -323,10 +323,6 @@ function validateJsonPal(pal) {
             return nope("invalid name of color #" + i);
         if (typeof c["notation"] !== "string" || c["notation"].length > 5)
             return nope("invalid notation of color #" + i);
-        if (typeof c["available"] !== "boolean"
-                || typeof c["grad"] !== "boolean"
-                || typeof c["tryDitherWo"] !== "boolean")
-            return nope("boolean types are not boolean on color #" + i);
     }
 
         return {valid: true};
@@ -423,7 +419,7 @@ function paletteToJqTable(pal, advanced = false) {
 
         let cbWo = $("<input type='checkbox'/>")
             .addClass('form-check-input big-checkbox')
-            .prop('checked', col.tryDitherWo)
+            .prop('checked', (col.tryDitherWo === true))
             .on('input', function () {
                 col.tryDitherWo = $(this).prop('checked');
             });

@@ -244,6 +244,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                 saveLocal('pdfDrawLetters', Glob.pdfDrawLetters);
                 saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
             }, 50);
+            if (addStat) {setTimeout(addStat, 200)}
         });
     let startAgainBtn = $("<button class='btn btn-outline-primary form-control'></button>")
         .append(fa("history"), " Go back")
