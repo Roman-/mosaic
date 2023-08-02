@@ -253,9 +253,19 @@ function loAdjustPortrait(chooseOptions, opt) {
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
 
+    const eligibleForAlgs = (Glob.cubeDimen === 3)
+    let getAlgsBtn = $("<button class='btn btn-outline-primary form-control'></button>")
+        .append(fa("list"), " Get algs")
+        .css("display", eligibleForAlgs ? "block" : "none")
+        .click(function () {
+            downloadGlobImageData()
+            window.open('https://bestsiteever.ru/algs_for_mosaic', '_blank');
+        });
+
 
     rightPanel.append(
         makePdfBtn,
+        getAlgsBtn,
         startAgainBtn,
         newMosaicBtn,
         $("<hr>"),
