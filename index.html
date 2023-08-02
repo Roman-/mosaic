@@ -1,91 +1,97 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="description" content="Create your Rubik's cube mosaic — free online tool for Rubik's cube art" />
-    <meta name="keywords" content="mosaic, Rubik's cube" />
-    <meta name="author" content="Roman Strakhov">
-    <meta name="theme-color" content="#eee" id='metaBarColor'>
-    <link rel="shortcut icon" href="favicon.ico?v2" />
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="css/bootstrap/flatly_bootstrap.min.css"/>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" type="text/css" href="css/fa.min.css">
-    <link rel="stylesheet" type="text/css" href="css/cropper.min.css">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <meta name="description" content="Create your Rubik's cube mosaic — free online tool for Rubik's cube art"/>
+  <meta name="keywords" content="mosaic, Rubik's cube"/>
+  <meta name="author" content="Roman Strakhov">
+  <meta name="theme-color" content="#eee" id='metaBarColor'>
+  <link rel="shortcut icon" href="favicon.ico?v2"/>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="css/bootstrap/flatly_bootstrap.min.css"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" type="text/css" href="css/fa.min.css">
+  <link rel="stylesheet" type="text/css" href="css/cropper.min.css">
 
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="js/3rd_party/jquery-3.3.1.min.js" ></script>
-    <script src="js/3rd_party/popper.min.js?v30"></script>
-    <script src="js/3rd_party/bootstrap.min.js?v30"></script>
-    <script src="js/3rd_party/cropper.min.js?v30"></script>
-    <script src="js/3rd_party/jquery.color-2.1.2.min.js"></script>
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/3rd_party/jquery-3.3.1.min.js"></script>
+  <script src="js/3rd_party/popper.min.js?v32"></script>
+  <script src="js/3rd_party/bootstrap.min.js?v32"></script>
+  <script src="js/3rd_party/cropper.min.js?v32"></script>
+  <script src="js/3rd_party/jquery.color-2.1.2.min.js"></script>
 
-    <!-- 3rd party js -->
-    <script src='js/3rd_party/bootstrap-input-spinner.js?v30'> </script>
-    <script src='js/3rd_party/jquery.color-2.1.2.min.js'> </script>
-    <!-- jspdf -->
-    <script type="text/javascript" src="js/3rd_party/jspdf/jspdf.js"></script>
-    <script type="text/javascript" src="js/3rd_party/jspdf/plugins/addimage.js"></script>
+  <!-- 3rd party js -->
+  <script src='js/3rd_party/bootstrap-input-spinner.js'></script>
+  <script src='js/3rd_party/jquery.color-2.1.2.min.js'></script>
+  <!-- jspdf -->
+  <script type="text/javascript" src="js/3rd_party/jspdf/jspdf.js"></script>
+  <script type="text/javascript" src="js/3rd_party/jspdf/plugins/addimage.js"></script>
 
-    <!-- app scripts and styles -->
-    <link rel="stylesheet" type="text/css" href="css/main.css?v31">
-    <script src='js/ui/jq_elements.js?v31'> </script>
+  <!-- app scripts and styles -->
+  <link rel="stylesheet" type="text/css" href="css/main.css?v32">
+  <script src='js/ui/jq_elements.js?v32'></script>
 
-    <script src='js/init.js?v31'> </script>
-    <script src='js/imagedata.js?v31'> </script>
-    <script src='js/ranges.js?v31'> </script>
-    <script src='js/layouts.js?v31'> </script>
-    <script src='js/helpers.js?v31'> </script>
-    <script src='js/glob.js?v31'> </script>
-    <script src='js/ditheralgs.js?v31'> </script>
-    <script src='js/blur.js?v31'> </script>
-    <script src='js/pdfcomposer.js?v31'> </script>
-    <script src='js/palette.js?v31'> </script>
-    <script src='js/saveload.js?v31'> </script>
-    <script src='js/texts.js?v31'> </script>
-    <script src='js/mosaicstats.js?v31'> </script>
+  <script src='js/init.js?v32'></script>
+  <script src='js/imagedata.js?v32'></script>
+  <script src='js/ranges.js?v32'></script>
+  <script src='js/layouts.js?v32'></script>
+  <script src='js/helpers.js?v32'></script>
+  <script src='js/glob.js?v32'></script>
+  <script src='js/ditheralgs.js?v32'></script>
+  <script src='js/blur.js?v32'></script>
+  <script src='js/pdfcomposer.js?v32'></script>
+  <script src='js/palette.js?v32'></script>
+  <script src='js/saveload.js?v32'></script>
+  <script src='js/texts.js?v32'></script>
+  <script src='js/mosaicstats.js?v32'></script>
 
-    <title>Rubik's cube mosaic & portraits creator tool</title>
+  <title>Rubik's cube mosaic & portraits creator tool</title>
 </head>
 <body>
 
-    <!-- navbar -->
-    <nav class="navbar navbar-light bg-light">
-      <a class="navbar-brand">
-        <img src="img/logo.png" width="30" height="30" class="d-inline-block ms-2 align-top" alt="">
-        <span id='appName'></span>
-      </a>
-      <button class="navbar-toggler mx-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-              <a class="nav-link closeMenu mx-2" id='dropImgMenu' onclick='loDropImage()'><i class='fa fa-plus'></i> New mosaic</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link closeMenu mx-2" onclick='loPalette()'><i class='fa fa-palette'></i> Palette editor</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link mx-2" href='https://www.speedsolving.com/threads/bse-mosaic-new-cube-mosaic-building-software.76139/' target='_blank'><i class='fa fa-comments'></i> Discussion forum</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link mx-2" href='https://github.com/Roman-/mosaic' target='_blank'><i class='fab fa-github'></i> Github repo</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link mx-2" href='https://bestsiteever.ru/me' target='_blank'><i class='fa fa-envelope'></i> Contact</a>
-          </li>
+<!-- navbar -->
+<nav class="navbar navbar-light bg-light">
+  <a class="navbar-brand">
+    <img src="img/logo.png" width="30" height="30" class="d-inline-block ms-2 align-top" alt="">
+    <span id='appName'></span>
+  </a>
+  <button class="navbar-toggler mx-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link closeMenu mx-2" id='dropImgMenu' onclick='loDropImage()'><i class='fa fa-plus'></i> New
+          mosaic</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link closeMenu mx-2" onclick='loPalette()'><i class='fa fa-palette'></i> Palette editor</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mx-2"
+           href='https://www.speedsolving.com/threads/bse-mosaic-new-cube-mosaic-building-software.76139/'
+           target='_blank'><i class='fa fa-comments'></i> Discussion forum</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mx-2" href='https://github.com/Roman-/mosaic' target='_blank'><i class='fab fa-github'></i>
+          Github repo</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link mx-2" href='https://bestsiteever.ru/me' target='_blank'><i class='fa fa-envelope'></i>
+          Contact</a>
+      </li>
 
-        </ul>
-      </div>
-    </nav>
+    </ul>
+  </div>
+</nav>
 
 <div id="mainLayWrap" class='container'>
-    <div id='mainLayout' class='centered'>
-    </div>
+  <div id='mainLayout' class='centered'>
+  </div>
 </div>
 
 <footer class="footer">
@@ -93,7 +99,7 @@
       <span class="text-muted">
           <a href='https://bestsiteever.ru' target='_blank'><img src='img/logo.png' class='em15'/></a>
                       with 💖
-              by <a href='https://bestsiteever.ru/me' target='_blank'>Roman Strakhov</a>
+              by <a href='https://bestsiteever.ru#me' target='_blank'>Roman Strakhov</a>
       </span>
   </div>
 </footer>
