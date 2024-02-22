@@ -69,9 +69,6 @@ function drawCubesBlock(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, 
     let stickerSize = Math.min(drawAreaRect.width / Glob.cubeDimen / blockWidthCubes,
                               drawAreaRect.height / Glob.cubeDimen / blockHeightCubes );
     const cubeSize = Glob.cubeDimen * stickerSize;
-    const pxInCube = Glob.cubeDimen * Glob.cubeDimen; // pixels in one cube
-    const pxInBlock = blockWidthCubes * blockHeightCubes * pxInCube; // pixels in one block
-    const numBlocksWidth = Math.ceil(Glob.pixelWidth / Glob.cubeDimen / blockWidthCubes); // how many blocks horisontally
 
     for (let cubeI = 0; cubeI < blockHeightCubes; cubeI++) {
         for (let cubeJ = 0; cubeJ < blockWidthCubes; cubeJ++) {
@@ -143,7 +140,7 @@ function drawCubesBlock(doc, blockI, blockJ, blockWidthCubes, blockHeightCubes, 
 }
 
 function terminatePdf(doc) {
-    var pdfDataAttr = doc.output('datauristring');
+    doc.output('datauristring');
     doc.save("Mosaic "+Glob.imgFileName.split('.')[0]+' '+getCurrentDateString()+".pdf");
     Glob.pdfProgress = null;
 }
@@ -321,10 +318,7 @@ function drawDocFooter(doc, rect) {
         ? 'Made with <3 by Roman Strakhov'
         : 'Bestsiteever Mosaic builder - free software by Roman Strakhov' + '\nhttps://bestsiteever.ru/mosaic';
 
-    let text = "";
-    if (Glob.cubeDimen > 2) {
-        text += nearlySolvedCubesText();
-    }
+    let text = nearlySolvedCubesText();
     text += additionalText;
     drawTextInMidRect(doc, text, rect, 12)
 }
@@ -406,7 +400,7 @@ function nearlySolvedCubesText() {
             let thisCubeCols = {};
             for (let pi = i; pi < i + Glob.cubeDimen; pi++) {
                 for (let pj = j; pj < j + Glob.cubeDimen; pj++) {
-                    if (getRgbOfPixel(Glob.imageData, pi, pj)[0] == -1) {
+                    if (getRgbOfPixel(Glob.imageData, pi, pj)[0] === -1) {
                         console.warn("nearlySolvedCubesText: get pixel data: i = ", i, ", j = ", j, ", pi = ", pi, ", pj = ", pj);
                     }
                     let rgbJoined = getRgbOfPixel(Glob.imageData, pi, pj).join(";");
@@ -426,13 +420,12 @@ function nearlySolvedCubesText() {
                         allCubes[colorName] = 1;
                     else
                         allCubes[colorName]++;
-                    return;
                 }
             });
         }
     }
 
-    if (allCubes.length == 0)
+    if (allCubes.length === 0)
         return "";
 
     let stringArr = [];
@@ -440,5 +433,7 @@ function nearlySolvedCubesText() {
         stringArr.push(num + " " + color);
     });
 
-    return "Nearly-solved cubes (2 stickers away or less): " + stringArr.join(', ') + ".\n";
+    let intro = (Glob.cubeDimen === 1) ? "Pixels: " : "Solved (or almost solved) cubes: "
+
+    return intro + stringArr.join(', ') + ".\n";
 }
