@@ -285,7 +285,8 @@ function loAdjustPortrait(chooseOptions, opt) {
     redrawMosaicWithUiRanges(true);
     redrawMosaicWithUiRanges(true);
     let totalCubes = Glob.pixelWidth * Glob.pixelHeight / (Glob.cubeDimen * Glob.cubeDimen);
-    setTitle('Your '+totalCubes+' cubes mosaic <i class="fa fa-cubes"></i>');
+    let artForm = Glob.cubeDimen === 1 ? "px artwork" : "cubes mosaic";
+    setTitle(`Your ${totalCubes} ${artForm} <i class="fa fa-cubes"></i>`);
 }
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
