@@ -226,7 +226,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     let rightPanel = $("<div></div>").addClass('col-sm-4');
     let pdfBtnText = "<i class='fa fa-download'></i> Download PDF";
-    let makePdfBtn = $("<button class='btn btn-success form-control'></button>")
+    let makePdfBtn = $("<button class='btn btn-success form-control my-1'></button>")
         .css('height', '3.5em')
         .html(pdfBtnText)
         .click(function () {
@@ -246,16 +246,16 @@ function loAdjustPortrait(chooseOptions, opt) {
             }, 50);
             if (addStat) {setTimeout(addStat, 200)}
         });
-    let startAgainBtn = $("<button class='btn btn-outline-primary form-control'></button>")
-        .append(fa("history"), " Go back")
-        .click(()=>doAfterLoadingSpinner(loChoose));
-    let newMosaicBtn = $("<button class='btn btn-outline-primary form-control'></button>")
+    let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
+        .append(fa("brush"), " Edit colors")
+        .click(()=>doAfterLoadingSpinner(loPalette));
+    let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
 
     const eligibleForAlgs = (Glob.cubeDimen === 3)
-    let getAlgsBtn = $("<button class='btn btn-outline-primary form-control'></button>")
-        .append(fa("list"), " Get algs")
+    let getAlgsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
+        .append(fa("list"), " Get 3x3 algs")
         .css("display", eligibleForAlgs ? "block" : "none")
         .click(function () {
             downloadGlobImageData()
@@ -266,7 +266,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     rightPanel.append(
         makePdfBtn,
         getAlgsBtn,
-        startAgainBtn,
+        editColorsBtn,
         newMosaicBtn,
         $("<hr>"),
         buildRangesDiv(),
