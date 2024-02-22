@@ -433,7 +433,12 @@ function nearlySolvedCubesText() {
         stringArr.push(num + " " + color);
     });
 
-    let intro = (Glob.cubeDimen === 1) ? "Pixels: " : "Solved (or almost solved) cubes: "
+    let result = (Glob.cubeDimen === 1) ? "Pixels: " : "Solved (or almost solved) cubes: "
+    for (let i = 0; i < stringArr.length; i++) {
+        const comma = (i === stringArr.length - 1) ? ""
+            : ((i > 0 && i % 6 === 0) ? ",\n  " : ", ");
+        result += stringArr[i] + comma;
+    }
 
-    return intro + stringArr.join(', ') + ".\n";
+    return result + ".\n";
 }
