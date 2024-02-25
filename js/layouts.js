@@ -289,26 +289,54 @@ function loAdjustPortrait(chooseOptions, opt) {
     setTitle(`Your ${totalCubes} ${artForm} <i class="fa fa-cubes"></i>`);
 }
 
+const populateDitheringClusters = (options, parameter) => {
+    const doesntLookDifferent = options.method === Methods.ORDERED && parameter > 0 // heuristic
+    let palettes = getPalettesReplacingDarkest()
+    if (options.palette.length !== getFullPalette().length || (palettes.length === 1) || doesntLookDifferent) {
+        return [{"options" : options, "name" : options.displayName}]; // this is "Diffusion without Blue"
+    }
+    let results = []
+    for (let paletteVariation of palettes) {
+        let newOpt = JSON.parse(JSON.stringify(options));
+        newOpt.palette = paletteVariation.colors;
+        results.push({"options": newOpt, "name": newOpt.displayName + " with " + paletteVariation.darkColor});
+    }
+
+    return results;
+}
+
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
-function loDitherAdjustment(chooseOptions, opt) {
-    console.log("lo2ndChoice(chooseOptions, opt): ", chooseOptions, opt);
-    let optsPopulation = populateOpts(chooseOptions, opt);
+function loDitherAdjustment(initialOptions, parameter) {
+    console.log("lo2ndChoice(chooseOptions, parameter): ", initialOptions, parameter);
+    const clusters = populateDitheringClusters(initialOptions, parameter) // {name : string, chooseOptions : chooseOptions}
 
-    let canvasesDiv = $("<div class='text-center'></div>");
+    let layout = $("<div/>");
+    for (let cluster of clusters) {
+        let optsPopulation = populateOpts(cluster.options, parameter);
 
-    optsPopulation.forEach(function (opt) {
-        // create canvas
-        let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
-            .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
-            .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.7)) // <- resize
-            .click(() => doAfterLoadingSpinner(()=>loAdjustPortrait(chooseOptions, opt)));
+        let canvasesDiv = $("<div class='text-center'></div>");
 
-        // draw image with ranges
-        drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, opt);
-        canvasesDiv.append(canvas);
-    });
+        optsPopulation.forEach(paramVariation => {
+            // create canvas
+            let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
+                .attr('title', paramVariation.toFixed(2))
+                .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
+                .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.7)) // <- resize
+                .click(() => doAfterLoadingSpinner(()=>loAdjustPortrait(cluster.options, paramVariation)));
 
-    $("#mainLayout").empty().append(canvasesDiv);
+            // draw image with ranges
+            drawMosaicOnCanvas(canvas, cluster.options.palette, cluster.options.method, paramVariation);
+            canvasesDiv.append(canvas);
+        });
+        layout.append(
+            $("<h3 class='mb-0'/>").
+                html(cluster.name),
+            $("<hr class='mb-1 mt-0'/>"),
+            canvasesDiv
+        )
+    }
+
+    $("#mainLayout").empty().append(layout);
     setTitle('Which one looks better?');
 }
 

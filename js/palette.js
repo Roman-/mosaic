@@ -162,7 +162,7 @@ function getPalettesReplacingDarkest() {
             currentPal.push(availablePalette[i].rgb);
         }
         currentPal.unshift(availablePalette[index].rgb);
-        pals.push({"colors": currentPal, "name": "on " + availablePalette[index]["name"]});
+        pals.push({"colors": currentPal, "darkColor": availablePalette[index]["name"]});
     });
 
     return pals;
