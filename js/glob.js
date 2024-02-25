@@ -50,19 +50,19 @@ Glob.chooseSets = function () {
             displayName: 'Gradient'
         },
         {
+            name: 'edWithDifferentDarkest',
+            method: Methods.ERROR_DIFFUSION,
+            palette: getFullPalette(),
+            opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
+            displayName: 'Diffusion'
+        },
+        {
             name: 'Ordered',
             method: Methods.ORDERED,
             palette: getFullPalette(),
-            opts: [-15, -10, -5, 0.0, 1.8, 5.7],
+            opts: [-3.5, -1.5, 0.0, 2.0, 4.0, 6.2],
             displayName: 'Dithering'
-        },
-        {
-            name: 'errorDiffusion',
-            method: Methods.ERROR_DIFFUSION,
-            palette: getFullPalette(),
-            opts: [1.9, 3.2, 5.2],
-            displayName: 'Diffusion'
-        },
+        }
     ];
     // Atkinson dithering will be added as an option to choose from on the final dithering stage
 /*
@@ -75,9 +75,18 @@ Glob.chooseSets = function () {
     });
 */
 
+    let differentDarkPals = getPalettesReplacingDarkest();
+    differentDarkPals.forEach(function (pal) {
+    chooseSets.push({
+            name: 'Ordered',
+            method: Methods.ORDERED,
+            palette: pal["colors"],
+            opts: [-11, -6],
+            displayName: 'Dithering ' + pal["name"]
+        })
+    });
     // for each color that is marked "try ED", generate a separate errorDiffusion thing WITHOUT this color
-    let edPals = getAllEdDitherPalettes();
-    let edPalIndex = 1;
+    let edPals = getPalettesExcludingColors();
     edPals.forEach(function (pal) {
         chooseSets.push({
             name: 'errorDiffusionSpecial',

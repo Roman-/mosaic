@@ -7,7 +7,7 @@
 //     grad: use this color in gradient method
 //     tryDitherWo: if true, try dithering alg without this color (in Glob.chooseSets)
 // }
-// palette should be sorted dark-to-bright for grad method
+// Order is important, see how Glob.chooseSets is formed
 Glob.defaultPalette = [
     {
         available: false,
@@ -15,7 +15,7 @@ Glob.defaultPalette = [
         name: 'Black',
         notation: 'D',
         grad: true,
-        tryDitherWo: false
+        tryDitherWo: true
     },
     {
         available: true,
@@ -23,7 +23,7 @@ Glob.defaultPalette = [
         name: 'Blue',
         notation: 'B',
         grad: true,
-        tryDitherWo: false
+        tryDitherWo: true
     },
     {
         available: true,
@@ -114,8 +114,8 @@ function getGradPalette() {
     return result;
 }
 
-// @returns array palettes to try out error diffusion method with
-function getAllEdDitherPalettes() {
+// @returns array of palettes, which are the same as original Glob.palette but missing one color
+function getPalettesExcludingColors() {
     let pals = [];
     let indexes = []; // indices of colors to try out error diffusion without
     let pal = Glob.palette;
@@ -137,6 +137,36 @@ function getAllEdDitherPalettes() {
 
         pals.push({"colors": currentPal, "name": "without " + Glob.palette[index]["name"]});
     });
+    return pals;
+}
+
+// @returns array of palettes which have the same colors as in Glob.palette, but with the first (darkest) color being different
+function getPalettesReplacingDarkest() {
+    const availablePalette = Glob.palette.filter(p => p.available);
+    const tone = (rgb) => rgb[0] + rgb[1] + rgb[2];
+    let darkestTone = null
+    // find first darkest color
+    for (let color of availablePalette) {
+        if (darkestTone === null || tone(color.rgb) < darkestTone) {
+            darkestTone = tone(color.rgb);
+        }
+    }
+
+    let indexesOfDarkestColors = availablePalette.filter(p => tone(p.rgb) === darkestTone).map(p => availablePalette.indexOf(p));
+
+    let pals = []
+    indexesOfDarkestColors.forEach(function (index) {
+        let currentPal = [];
+        for (let i = 0; i < availablePalette.length; ++i) {
+            if (i === index) {
+                continue;
+            }
+            currentPal.push(availablePalette[i].rgb);
+        }
+        currentPal.unshift(availablePalette[index].rgb);
+        pals.push({"colors": currentPal, "name": "on " + availablePalette[index]["name"]});
+    });
+
     return pals;
 }
 
