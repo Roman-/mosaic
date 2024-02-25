@@ -49,16 +49,22 @@ Glob.chooseSets = function () {
             opts: initialRangePopulation(getGradPalette(), [0.55, 0.65, 0.75], [0.35, 0.45]),
             displayName: 'Gradient'
         },
-        // errorDiffusion with full palette: one is super dithered and another one more smooth
+        {
+            name: 'Ordered',
+            method: Methods.ORDERED,
+            palette: getFullPalette(),
+            opts: [-15, -10, -5, 0.0, 1.8, 5.7],
+            displayName: 'Dithering'
+        },
         {
             name: 'errorDiffusion',
             method: Methods.ERROR_DIFFUSION,
             palette: getFullPalette(),
-            opts: [1.9, 6.0],
+            opts: [1.9, 3.5, 6.2],
             displayName: 'Diffusion'
         },
     ];
-    // add ordered dithering
+    // add Atkinson dithering
     chooseSets.push({
         name: 'Atkinson',
         method: Methods.ATKINSON,
@@ -75,17 +81,9 @@ Glob.chooseSets = function () {
             name: 'errorDiffusionSpecial',
             method: Methods.ERROR_DIFFUSION,
             palette: pal["colors"],
-            opts: [1.9, 6.0],
+            opts: [1.9, 3.5, 6.2],
             displayName: ('Diffusion ' + pal["name"])
         });
-    });
-    // add ordered dithering
-    chooseSets.push({
-        name: 'Ordered',
-        method: Methods.ORDERED,
-        palette: getFullPalette(),
-        opts: [-15, -10, -5, 0.0, 1.6],
-        displayName: 'Ordered dithering'
     });
     // The 'closest color' option doesn't look different from the "ordered dithering", so don't display it
     /*

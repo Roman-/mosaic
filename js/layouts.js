@@ -422,18 +422,21 @@ function loCropper() {
 
 // layout with 1-st step choose. Displays a bunch of canvases
 function loChoose() {
-    if (getFullPalette().length < 2)
+    if (getFullPalette().length < 2) {
         return loPalette();
+    }
     window.scrollTo(0,0); // for large amount of images
-    let canvasesDiv = $("<div class='text-center'></div>");
+    let optiontsDiv = $("<div/>");
     let canvasDisplayWidth = clamp(150, Glob.pixelWidth * 3, window.innerWidth * 0.40);
 
     Glob.chooseSets().forEach(function (chooseOptions) {
+        let canvasesDiv = $("<div class='text-center'/>");
+        optiontsDiv.append($("<h3 class='mb-0'/>").html(chooseOptions.displayName), $("<hr class='mb-1 mt-0'/>"), canvasesDiv);
         chooseOptions.opts.forEach(function (opt) {
             // create canvas
             let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
                 .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
-                .attr('title', chooseOptions.displayName)
+                .attr('title', JSON.stringify(opt))
                 .width(canvasDisplayWidth) // <- resize
                 .click(() => doAfterLoadingSpinner(() => lo2ndChoice(chooseOptions, opt)));
 
@@ -444,7 +447,7 @@ function loChoose() {
     });
 
     let btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
-    $("#mainLayout").empty().append(canvasesDiv, btnChangePal);
+    $("#mainLayout").empty().append(optiontsDiv, btnChangePal);
 
     setTitle('Select the best looking picture <i class="fa fa-grip-horizontal"></i>');
 }
