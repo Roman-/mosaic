@@ -33,15 +33,16 @@ function populateOpts(chooseSet, opt) {
     // else assume opt is a float number in the array chooseSet.opts
     // and return an evenly spreaded array of [ opts[i-1], opts[i+1] ]
     // TODO remove hardcode
-    const rightShift = 5; // if user has selected the last option, how wide should we extend the interval to the right?
-    const amountOfOptions = 8;
+    const rightShift = 2; // if user has selected the last option, how wide should we extend the interval to the right?
+    const amountOfOptions = 4;
     let index = chooseSet.opts.indexOf(opt);
     let min = (index === 0) ? (chooseSet.opts[0] - rightShift) : chooseSet.opts[index-1];
     let max = (index === chooseSet.opts.length-1) ? (opt+rightShift) : chooseSet.opts[index+1];
+    let start = min + (max - min) / (amountOfOptions + 1) // ( |  |  | )
     let l = (max - min) / (amountOfOptions);
 
     let result = [];
-    for (let o = min; o < max; o += l)
+    for (let o = start; o < max; o += l)
         result.push(o);
     return result;
 }

@@ -60,51 +60,22 @@ Glob.chooseSets = function () {
             name: 'Ordered',
             method: Methods.ORDERED,
             palette: getFullPalette(),
-            opts: [-3.5, -1.5, 0.0, 2.0, 4.0, 6.2],
+            opts: [-8, -3.5, -1.5, 1.0, 4.0, 6.2],
             displayName: 'Dithering'
         }
     ];
     // Atkinson dithering will be added as an option to choose from on the final dithering stage
-/*
-    chooseSets.push({
-        name: 'Atkinson',
-        method: Methods.ATKINSON,
-        palette: getFullPalette(),
-        opts: [0.8, 2.2, 3.5],
-        displayName: 'Atkinson'
-    });
-*/
-
-    let differentDarkPals = getPalettesReplacingDarkest();
-    differentDarkPals.forEach(function (pal) {
-    chooseSets.push({
-            name: 'Ordered',
-            method: Methods.ORDERED,
-            palette: pal["colors"],
-            opts: [-11, -6],
-            displayName: 'Dithering ' + pal["name"]
-        })
-    });
     // for each color that is marked "try ED", generate a separate errorDiffusion thing WITHOUT this color
     let edPals = getPalettesExcludingColors();
-    edPals.forEach(function (pal) {
+    edPals.forEach(pal => {
         chooseSets.push({
             name: 'errorDiffusionSpecial',
             method: Methods.ERROR_DIFFUSION,
             palette: pal["colors"],
-            opts: [1.9, 3.5, 6.2],
+            opts: [1.0, 2.5, 3.5, 6.2],
             displayName: ('Diffusion ' + pal["name"])
         });
     });
-    // The 'closest color' option doesn't look different from the "ordered dithering", so don't display it
-    /*
-        chooseSets.push({
-            name: 'Closest',
-            method: Methods.CLOSEST_COLOR,
-            palette: getFullPalette(),
-            opts: [0],
-            displayName: 'Closest color'
-        });
-    */
+    // The 'closest color' option doesn't look different from the "ordered dithering" with G=0, so don't display it
     return chooseSets;
 }

@@ -41,7 +41,6 @@ Glob.defaultPalette = [
         grad: true,
         tryDitherWo: false
     },
-    /*
     {
         available: false,
         rgb: [255, 105, 180], // Pink
@@ -50,7 +49,6 @@ Glob.defaultPalette = [
         grad: true,
         tryDitherWo: true
     },
-    */
     {
         available: true,
         rgb: [255, 153,   0], // Orange
