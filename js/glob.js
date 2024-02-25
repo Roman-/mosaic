@@ -55,9 +55,17 @@ Glob.chooseSets = function () {
             method: Methods.ERROR_DIFFUSION,
             palette: getFullPalette(),
             opts: [1.9, 6.0],
-            displayName: 'ED method, all colors'
+            displayName: 'Diffusion'
         },
     ];
+    // add ordered dithering
+    chooseSets.push({
+        name: 'Atkinson',
+        method: Methods.ATKINSON,
+        palette: getFullPalette(),
+        opts: [0.0, 1.9, 3.3],
+        displayName: 'Atkinson'
+    });
 
     // for each color that is marked "try ED", generate a separate errorDiffusion thing WITHOUT this color
     let edPals = getAllEdDitherPalettes();
@@ -66,9 +74,9 @@ Glob.chooseSets = function () {
         chooseSets.push({
             name: 'errorDiffusionSpecial',
             method: Methods.ERROR_DIFFUSION,
-            palette: pal,
+            palette: pal["colors"],
             opts: [1.9, 6.0],
-            displayName: ('ED method, colorset ' + (edPalIndex++))
+            displayName: ('Diffusion ' + pal["name"])
         });
     });
     // add ordered dithering
@@ -76,16 +84,18 @@ Glob.chooseSets = function () {
         name: 'Ordered',
         method: Methods.ORDERED,
         palette: getFullPalette(),
-        opts: [-15, -10, -5, 0.0, 1.5],
+        opts: [-15, -10, -5, 0.0, 1.6],
         displayName: 'Ordered dithering'
     });
-    // add 'closest color' as an option. On the layout however, it doesn't look different from the last "ordered dithering"
-    chooseSets.push({
-        name: 'Closest',
-        method: Methods.CLOSEST_COLOR,
-        palette: getFullPalette(),
-        opts: [0],
-        displayName: 'Closest color'
-    });
+    // The 'closest color' option doesn't look different from the "ordered dithering", so don't display it
+    /*
+        chooseSets.push({
+            name: 'Closest',
+            method: Methods.CLOSEST_COLOR,
+            palette: getFullPalette(),
+            opts: [0],
+            displayName: 'Closest color'
+        });
+    */
     return chooseSets;
 }

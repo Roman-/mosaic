@@ -135,7 +135,7 @@ function getAllEdDitherPalettes() {
                 currentPal.push(pal[i].rgb);
         }
 
-        pals.push(currentPal);
+        pals.push({"colors": currentPal, "name": "without " + Glob.palette[index]["name"]});
     });
     return pals;
 }
