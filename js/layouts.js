@@ -14,6 +14,16 @@ function doAfterLoadingSpinner(callback) {
     setTimeout(callback, 10);
 }
 
+let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
+    .click(loDropImage)
+    .append(fa("plus"), " Upload other image");
+let editColorsFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
+    .append(fa("brush"), " Customize colors")
+    .click(()=>doAfterLoadingSpinner(loPalette));
+let changeMethodFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
+    .click(() => doAfterLoadingSpinner(loChoose))
+    .append(fa("undo"), " Choose different method");
+
 // main layout with "drop image" thing
 function loDropImage() {
     if (Glob.cropper)
@@ -156,7 +166,6 @@ function loAdjustPortrait(chooseOptions, opt) {
     Glob.canvasBlur.initCanvas(Glob.canvas[0]);
     let blurBtn = $("<button class='btn btn-outline-info form-control'></button>")
         .append(fa("glasses").addClass("fa-fw"), " Blur preview")
-        .attr('title', 'Blur')
         .click(() => Glob.canvasBlur.gBlur(3));
 
     let drawLettersCb = $("<input type='checkbox'/>")
@@ -340,7 +349,8 @@ function loDitherAdjustment(initialOptions, parameter) {
         )
     }
 
-    $("#mainLayout").empty().append(layout);
+    $("#mainLayout").empty().append(layout, $("<hr class='my-1'>"),
+        uploadOtherImageFooterBtn(), changeMethodFooterBtn(), editColorsFooterBtn());
     setTitle('Which one looks better?');
 }
 
@@ -478,14 +488,8 @@ function loChoose() {
         })
     });
 
-    let editColorsBtn = $("<button class='btn btn-outline-primary m-1'></button>")
-        .append(fa("brush"), " Customize colors")
-        .click(()=>doAfterLoadingSpinner(loPalette));
-
-    let btnGoBack = $("<button class='btn btn-outline-warning m-1'></button>")
-        .click(loDropImage)
-        .append(fa("undo"), " Upload different image");
-    $("#mainLayout").empty().append(optiontsDiv, $("<hr class='my-1'>"), btnGoBack, editColorsBtn);
+    $("#mainLayout").empty().append(optiontsDiv, $("<hr class='my-1'>"),
+        uploadOtherImageFooterBtn(), editColorsFooterBtn());
 
     setTitle('Select the best looking picture');
 }
@@ -532,7 +536,8 @@ function loGradAdjustment(chooseOptions, opt) {
         canvasesDiv.append(canvas);
     });
 
-    $("#mainLayout").empty().append(topPanel, splitter, canvasesDiv);
+    $("#mainLayout").empty().append(topPanel, splitter, canvasesDiv,
+        $("<hr class='my-1'>"), uploadOtherImageFooterBtn(), changeMethodFooterBtn(), editColorsFooterBtn());
     setTitle('Almost done');
 }
 
