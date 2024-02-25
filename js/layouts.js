@@ -249,6 +249,9 @@ function loAdjustPortrait(chooseOptions, opt) {
     let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("brush"), " Edit colors")
         .click(()=>doAfterLoadingSpinner(loPalette));
+    let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
+        .append(fa("undo"), " Change method")
+        .click(loChoose);
     let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
@@ -265,8 +268,9 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     rightPanel.append(
         makePdfBtn,
-        getAlgsBtn,
+        // getAlgsBtn,
         editColorsBtn,
+        changeMethodBtn,
         newMosaicBtn,
         $("<hr>"),
         buildRangesDiv(),
@@ -477,7 +481,7 @@ function loChoose() {
     let btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
     $("#mainLayout").empty().append(optiontsDiv, btnChangePal);
 
-    setTitle('Select the best looking picture <i class="fa fa-grip-horizontal"></i>');
+    setTitle('Select the best looking picture');
 }
 
 // layout like lo2ndChoice but for gradient method
