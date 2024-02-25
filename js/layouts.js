@@ -251,7 +251,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .click(()=>doAfterLoadingSpinner(loPalette));
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
-        .click(loChoose);
+        .click(() => doAfterLoadingSpinner(loChoose));
     let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
@@ -478,8 +478,14 @@ function loChoose() {
         })
     });
 
-    let btnChangePal = $("<button class='btn btn-outline-primary m-1'></button>").html('Customize colors&hellip;').click(loPalette);
-    $("#mainLayout").empty().append(optiontsDiv, btnChangePal);
+    let editColorsBtn = $("<button class='btn btn-outline-primary m-1'></button>")
+        .append(fa("brush"), " Customize colors")
+        .click(()=>doAfterLoadingSpinner(loPalette));
+
+    let btnGoBack = $("<button class='btn btn-outline-warning m-1'></button>")
+        .click(loDropImage)
+        .append(fa("undo"), " Upload different image");
+    $("#mainLayout").empty().append(optiontsDiv, $("<hr class='my-1'>"), btnGoBack, editColorsBtn);
 
     setTitle('Select the best looking picture');
 }
