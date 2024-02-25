@@ -23,7 +23,7 @@ Glob.defaultPalette = [
         name: 'Blue',
         notation: 'B',
         grad: true,
-        tryDitherWo: true
+        tryDitherWo: false
     },
     {
         available: true,

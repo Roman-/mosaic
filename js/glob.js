@@ -60,18 +60,20 @@ Glob.chooseSets = function () {
             name: 'errorDiffusion',
             method: Methods.ERROR_DIFFUSION,
             palette: getFullPalette(),
-            opts: [1.9, 3.5, 6.2],
+            opts: [1.9, 3.2, 5.2],
             displayName: 'Diffusion'
         },
     ];
-    // add Atkinson dithering
+    // Atkinson dithering will be added as an option to choose from on the final dithering stage
+/*
     chooseSets.push({
         name: 'Atkinson',
         method: Methods.ATKINSON,
         palette: getFullPalette(),
-        opts: [0.0, 1.9, 3.3],
+        opts: [0.8, 2.2, 3.5],
         displayName: 'Atkinson'
     });
+*/
 
     // for each color that is marked "try ED", generate a separate errorDiffusion thing WITHOUT this color
     let edPals = getAllEdDitherPalettes();
