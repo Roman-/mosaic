@@ -478,7 +478,7 @@ function loChoose() {
             // create canvas
             let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
                 .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
-                .attr('title', JSON.stringify(opt))
+                .attr('title', typeof opt === "number" ? opt.toFixed(1) : "")
                 .width(canvasDisplayWidth) // <- resize
                 .click(() => doAfterLoadingSpinner(() => lo2ndChoice(chooseOptions, opt)));
 
@@ -498,7 +498,7 @@ function loChoose() {
 function loGradAdjustment(chooseOptions, opt) {
     showLoadingSpinner();
     window.scrollTo(0,0); // for large amount of images
-    let topPanel = $("<div></div>");
+    let topPanel = $("<div class='card bg-light'></div>").css('padding', '0.5em');
     let canvas = $("<canvas></canvas>")
         .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
         .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.40)) // <- resize
@@ -516,23 +516,21 @@ function loGradAdjustment(chooseOptions, opt) {
         .append('<h4>Or pick a different image:</h4>');
 
     let row = $("<div class='row'></div>").append(canvasPart, rightPart);
-    topPanel.addClass('card bg-light').css('padding', '0.5em').html(row);
+    topPanel.html(row);
 
     let optsPopulation = populateSetOfRanges(opt);
 
     let canvasesDiv = $("<div class='text-center'></div>");
 
-    optsPopulation.forEach(function (newOpt) {
+    optsPopulation.forEach(function (newArray) {
         // create canvas
         let canvas = $("<canvas class='rangeOptionCanvas'></canvas>")
             .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
             .width(clamp(120, Glob.pixelWidth * 4, window.innerWidth * 0.40)) // <- resize
-            .click(function () {
-                doAfterLoadingSpinner(() => loGradAdjustment(chooseOptions, newOpt));
-            });
+            .click(() => { doAfterLoadingSpinner(() => loGradAdjustment(chooseOptions, newArray)) });
 
         // draw image with ranges
-        drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, newOpt);
+        drawMosaicOnCanvas(canvas, chooseOptions.palette, chooseOptions.method, newArray);
         canvasesDiv.append(canvas);
     });
 

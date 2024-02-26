@@ -91,5 +91,8 @@ function populateSetOfRanges(range) {
         results.push(newRangeR);
     }
 
+    // sort results by last element in array (white in gradient) so they appear from brightest to darkest
+    results.sort(function (a, b) { return a[a.length-1] - b[b.length-1]; });
+
     return results;
 }
