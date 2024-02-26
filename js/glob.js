@@ -17,6 +17,7 @@ Glob.maxCubesForMiniature = 2500; // heuristics for maximum cubes (pixels/9) tha
 Glob.bottomToTop = true; // output PDF bottom-to-top
 Glob.pdfDrawLetters = true; // draw color-notation letters inside squares
 Glob.pdfBwPrinter = false; // black-and-white printer? If true, will draw white squares instead of colored
+Glob.debugModeOn = false;
 
 Glob.initialCubeDimen = 3; // 1 for pixart, 3 for 3x3 cubes
 Glob.initialCubeWidth = 20;

@@ -2,8 +2,12 @@ $(document).ready(function() {
     initMenu();
     initLocalStorageVars();
 
+    if (Glob.debugModeOn) {
+        console.warn("debug mode ON");
+        document.getElementById("bootstrap_css_link").href = "css/bootstrap/darkly.min.css";
+    }
+
     loDropImage();
-    // fakeFileUpload();
 });
 
 // load locally saved params, such as mosaic size etc
@@ -14,6 +18,7 @@ function initLocalStorageVars() {
     Glob.pdfDrawLetters = loadLocalBool('pdfDrawLetters', Glob.pdfDrawLetters);
     Glob.bottomToTop = loadLocalBool('bottomToTop', Glob.bottomToTop);
     Glob.pdfBwPrinter = loadLocalBool('pdfBwPrinter', Glob.pdfBwPrinter);
+    Glob.debugModeOn = loadLocalBool('mosaicDebugMode', false);
 }
 
 function initMenu() {
