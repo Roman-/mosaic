@@ -235,6 +235,15 @@ function loAdjustPortrait(chooseOptions, opt) {
             dontUseColorLabel,
         );
 
+    let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
+        $("<div/>").append(
+            $("<a href='https://discord.gg/8psRGEvyEj' target='_blank' class='btn btn-info form-control my-1'><i class='fab fa-discord'></i> Join Discord</a>"),
+        ),
+        $("<div/>").append(
+            $("<a class='btn btn-outline-info form-control my-1'  href='https://www.paypal.com/paypalme/romanisawesome' target='_blank'><i class='fab fa-paypal'></i> Support project</a>"),
+        )
+    ).css('display', 'none');
+
     let collapseBtn = $("<button class='btn btn-outline-secondary form-control' data-bs-toggle='collapse' data-bs-target='#collapsedOpts'></button>")
         .html('More options <i class="fa fa-angle-down"></i>');
 
@@ -243,7 +252,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let makePdfBtn = $("<button class='btn btn-success form-control my-1'></button>")
         .css('height', '3.5em')
         .html(pdfBtnText)
-        .click(function () {
+        .click(() => {
             makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);;
             redrawMosaicWithUiRanges(); // in case we've blurred canvas or something
             setTimeout(() => {
@@ -257,6 +266,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                 saveLocal('bottomToTop', Glob.bottomToTop);
                 saveLocal('pdfDrawLetters', Glob.pdfDrawLetters);
                 saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
+                setTimeout(() => promoDiv.css('display', 'block'), 300)
             }, 50);
             if (addStat) {setTimeout(addStat, 200)}
         });
@@ -290,6 +300,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         buildRangesDiv(),
         collapseBtn,
         collapsedDiv,
+        promoDiv
     );
 
     let row = $("<div class='row'></div>").append(imagesDiv, rightPanel);

@@ -1,14 +1,12 @@
-# Mosaic
+# Rubik's cube mosaic builder
 
-<details>
-  <summary>Demo</summary>
-  
-  ![demo](img/demo.gif)
-  
-</details>
+**Discussion, feature suggestions, bug reports: welcome to our [Discord Server](https://discord.gg/8psRGEvyEj)**
 
-## Rubik's cube mosaic builder
 ![](img/tutorial.jpg)
+
+## Demo
+
+![demo](img/demo.gif)
 
 ## Project structure
 Js files are in js/ directory. `init.js` is for initialization. `layouts.js` has functions like `loXYZ()`, which are layouts. `glob.js` contains global variables and parameters, including `Glob.chooseSets()` that defines methods and parameters used for making different mosaic pictures. `pdfcomposer.js` has funcs to compose the PDF file with [jspdf](https://github.com/MrRio/jsPDF "jspdf") lib.
@@ -47,4 +45,3 @@ Also: atkinson dithering is not used in this software because the result it prod
 
 ### Closest color
 `closestColorDither(...)` replaces colors in each pixel of the resized image to its closest color from the palette. This also happens automatically when user uploads *miniature* (see layouts.js -> `onImageHasBeenLoaded()` and `onMiniatureUploaded()`).
-
