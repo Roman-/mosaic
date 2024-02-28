@@ -37,7 +37,8 @@ function populateOpts(chooseSet, opt) {
     const amountOfOptions = 4;
     let index = chooseSet.opts.indexOf(opt);
     let min = (index === 0) ? (chooseSet.opts[0] - rightShift) : chooseSet.opts[index-1];
-    if (chooseSet.method === Methods.ERROR_DIFFUSION && min < 0) {min = 0} // ERROR_DIFFUSION Grain can't be < 0
+    const grainShouldBePositive = [Methods.ERROR_DIFFUSION, Methods.ATKINSON].indexOf(chooseSet.method) >= 0
+    if (grainShouldBePositive && min < 0) {min = 0} // ERROR_DIFFUSION Grain can't be < 0
     let max = (index === chooseSet.opts.length-1) ? (opt+rightShift) : chooseSet.opts[index+1];
     let start = min + (max - min) / (amountOfOptions + 1) // ( |  |  | )
     let l = (max - min) / (amountOfOptions);

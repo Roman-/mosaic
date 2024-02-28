@@ -157,7 +157,7 @@ function errorDiffusionDither(imageData, palette, ratioDenom = 3) {
     var d = new Uint8ClampedArray(imageData.data);
     var out = new Uint8ClampedArray(imageData.data);
     var w = imageData.width; var h = imageData.height;
-    let step = 1;
+    let step = 1; // greater values combine multiple pixels in one, visually lowering the resolution
     let ratioDenomScaled = 1.5 + (ratioDenom / 5 * (15-1.5));
     // default ratio = 1/16;
     var ratio = 1/(ratioDenomScaled*4);
@@ -216,7 +216,6 @@ function errorDiffusionDither(imageData, palette, ratioDenom = 3) {
                     out[di] = tr;
                     out[di+1] = tg;
                     out[di+2] = tb;
-
                 }
             }
         }
@@ -253,7 +252,7 @@ function atkinsonDither(imageData, palette, ratioDenom) {
             b = i+2;
             a = i+3;
 
-            color = new Array(d[r],d[g],d[b]);
+            color = [d[r],d[g],d[b]];
             approx = this.approximateColor(color, palette);
 
             q = [];
@@ -308,7 +307,7 @@ function atkinsonDither(imageData, palette, ratioDenom) {
 /// @param palette - array of arrays [[r, g, b], [r, g, b], ...]
 function approximateColor(color, palette) {
     var findIndex = function(fun, arg, list, min) {
-        if (list.length == 2) {
+        if (list.length === 2) {
             if (fun(arg,min) <= fun(arg,list[1])) {
                 return min;
             } else {
@@ -316,9 +315,7 @@ function approximateColor(color, palette) {
             }
         } else {
             var tl = list.slice(1);
-            if (fun(arg,min) <= fun(arg,list[1])) {
-                min = min;
-            } else {
+            if (fun(arg,min) > fun(arg,list[1])) {
                 min = list[1];
             }
             return findIndex(fun,arg,tl,min);
