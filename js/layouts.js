@@ -54,21 +54,22 @@ function loDropImage() {
 
     if (Glob.debugModeOn) {
         tutorialWrap.empty().append("<h3>--- DEBUG MODE ON ---</h3>");
-    } else {
-        setTimeout(() => {
-            tutorialWrap.empty().append(
-                $("<iframe>")
-                    .css("width", "70vw")
-                    .css("height", "40vw")
-                    .css("max-width", "1920px")
-                    .css("max-height", "1080px")
-                    .attr("src", "https://www.youtube.com/embed/MhVSOkys8pI")
-                    .attr("title", "YouTube video player")
-                    .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
-                    .prop("autofullscreen", true)
-            )
-        }, 100)
+        return;
     }
+    setTimeout(() => {
+        tutorialWrap.empty().append(
+            $("<iframe>")
+            .css("width", "70vw")
+            .css("height", "40vw")
+            .css("max-width", "1920px")
+            .css("max-height", "1080px")
+            .attr("src", "https://www.youtube.com/embed/MhVSOkys8pI")
+            .attr("title", "YouTube video player")
+            .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
+            .prop("autofullscreen", true)
+        )
+        window.scrollTo(0, 0);
+    }, 1)
 }
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
