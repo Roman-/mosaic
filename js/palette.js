@@ -248,7 +248,7 @@ function jqPaletteLay() {
     let btnAdvancedWrap = jqCol(btnAdvanced).css('padding', colPadding);
 
     let btnLoad = $("<button></button>")
-        .append(fa("folder-open"), ' Load from file&hellip;')
+        .append(fa("folder-open"), ' Import from file&hellip;')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {
             openLoadPalDialog(updatePalOnScreen);
@@ -256,7 +256,7 @@ function jqPaletteLay() {
     let btnLoadWrap = jqCol(btnLoad).css('padding', colPadding).hide();
 
     let btnSave = $("<button></button>")
-        .append(fa("download"), ' Download')
+        .append(fa("download"), ' Export')
         .addClass('btn btn-outline-primary m-1 form-control')
         .click(function () {downloadPlainText(JSON.stringify(Glob.palette, null, 2), "My palette.pal")})
     let btnSaveWrap = jqCol(btnSave).css('padding', colPadding).hide();
@@ -371,7 +371,7 @@ function paletteToJqTable(pal, advanced = false) {
         headersTr.append(
             $("<th>").addClass("px-1").append("Letter"),
             $("<th>").addClass("px-1 text-nowrap").append("Use in gradient", questionTt(Txt.gradText)),
-            $("<th>").addClass("px-1 text-nowrap").append("Try ED", questionTt(Txt.edText)));
+            $("<th>").addClass("px-1 text-nowrap").append("DE", questionTt(Txt.edText)));
     }
 
     // insert tr
