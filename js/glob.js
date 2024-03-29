@@ -57,6 +57,15 @@ Glob.chooseSets = function () {
             opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
             displayName: 'Diffusion'
         },
+/*
+        {
+            name: 'Atkinson',
+            method: Methods.ATKINSON,
+            palette: getFullPalette(),
+            opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
+            displayName: 'Atkinson dither'
+        },
+*/
         {
             name: 'Ordered',
             method: Methods.ORDERED,

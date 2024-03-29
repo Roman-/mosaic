@@ -63,7 +63,7 @@ function loDropImage() {
             .css("height", "40vw")
             .css("max-width", "1920px")
             .css("max-height", "1080px")
-            .attr("src", "https://www.youtube.com/embed/MhVSOkys8pI")
+            .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
             .attr("title", "YouTube video player")
             .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
             .prop("autofullscreen", true)
