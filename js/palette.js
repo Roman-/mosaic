@@ -353,7 +353,7 @@ function validateJsonPal(pal) {
             return nope("invalid notation of color #" + i);
     }
 
-        return {valid: true};
+    return {valid: true};
 }
 
 // @param pal - palette in JSON format (see Glob.palette)
@@ -396,7 +396,7 @@ function paletteToJqTable(pal, advanced = false) {
             .addClass('form-control')
             .on('input', function () {
                 let newName = $(this).val();
-                if (newName.length > 0 && newName.length < 25 && newName.match(/^[A-Za-z]*$/g)) {
+                if (newName.length > 0 && newName.length < 25 && newName.match(/^[0-9A-Za-z]*$/g)) {
                     col.name = newName;
                     $(this).removeClass('border border-danger');
                     resetColorNamesCache();
@@ -425,7 +425,7 @@ function paletteToJqTable(pal, advanced = false) {
             .addClass('form-control')
             .on('input', function () {
                 let newNotation = $(this).val();
-                if (newNotation.length < 5 && newNotation.match(/^[A-Za-z]*$/g)) {
+                if (newNotation.length > 0 && newNotation.length < 5 && newNotation.match(/^[0-9A-Za-z]*$/g)) {
                     col.notation = newNotation;
                     $(this).removeClass('border border-danger');
                     resetColorNamesCache();
