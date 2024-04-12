@@ -293,7 +293,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     rightPanel.append(
         makePdfBtn,
-        // getAlgsBtn,
+        getAlgsBtn,
         editColorsBtn,
         changeMethodBtn,
         newMosaicBtn,
