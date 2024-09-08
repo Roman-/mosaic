@@ -5,9 +5,6 @@
 # tmp files
 *~
 
-# mosaic
-js/mosaicstats.js
-
 # vim
 [._]*.sw[a-p]
 tags

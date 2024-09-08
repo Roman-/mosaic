@@ -316,7 +316,7 @@ function drawDocFooter(doc, rect) {
     let additionalText =
           Glob.hideWebsiteInfo
         ? 'Made with <3 by Roman Strakhov'
-        : 'Bestsiteever Mosaic builder - free software by Roman Strakhov' + '\nhttps://bestsiteever.ru/mosaic';
+        : 'Bestsiteever Mosaic builder - free software by Roman Strakhov' + '\nhttps://bestsiteever.net/mosaic';
 
     let text = nearlySolvedCubesText();
     text += additionalText;

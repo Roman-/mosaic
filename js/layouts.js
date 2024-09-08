@@ -254,7 +254,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .css('height', '3.5em')
         .html(pdfBtnText)
         .click(() => {
-            makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);;
+            makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);
             redrawMosaicWithUiRanges(); // in case we've blurred canvas or something
             setTimeout(() => {
                 generatePdf();
@@ -269,7 +269,6 @@ function loAdjustPortrait(chooseOptions, opt) {
                 saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
                 setTimeout(() => promoDiv.css('display', 'block'), 300)
             }, 50);
-            if (addStat) {setTimeout(addStat, 200)}
         });
     let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("brush"), " Edit colors")
@@ -287,7 +286,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .css("display", eligibleForAlgs ? "block" : "none")
         .click(function () {
             downloadGlobImageData()
-            window.open('https://bestsiteever.ru/algs_for_mosaic', '_blank');
+            window.open('https://bestsiteever.net/algs_for_mosaic', '_blank');
         });
 
 
