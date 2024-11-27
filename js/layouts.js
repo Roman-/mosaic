@@ -641,7 +641,6 @@ function onImageHasBeenLoaded(img, fileName) {
     let isMiniature = (Glob.img.width % (Glob.cubeDimen)===0)
         && (Glob.img.height % (Glob.cubeDimen)===0)
         && Glob.imgFileName.toLowerCase().startsWith('miniature');
-    console.log("isMiniature", isMiniature, Glob.img.height, Glob.img.width, "dimen", Glob.cubeDimen);
 
     if (isMiniature) {
         doAfterLoadingSpinner(onMiniatureUploaded);
