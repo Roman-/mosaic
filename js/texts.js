@@ -22,7 +22,7 @@ Txt.qaTitlesAndTexts = [
     "<h3 class='mt-4'>Does it work with black stickers?</h3>",
 "Yes. Click the menu button in the top-right corner of the page, go to palette editor and enable black color. You can change colors as you wish.",
     "<h3 class='mt-4'>I prefer to make mosaic pictures myself. Can I use this website just to split it into sections?</h3>",
-    "Yes. If you have your miniature picture ready (e.g. 60x90 pixel image to make 20x30 cubes mosaic), simply drag-and-drop it here as you would with normal pictures. The program will skip all adjustments and  directly take you to the \"Download PDF\" stage.",
+    "Yes. If you have your miniature picture ready (e.g. 60x90 pixel image to make 20x30 cubes mosaic), simply rename it to 'miniature.png' and drag-and-drop the file here as you would with normal pictures. The program will skip all adjustments and directly take you to the \"Download PDF\" stage.",
     "<h3 class='mt-4'>Why some images produce much better mosaics than others?</h3>",
     "The quality of the source picture is important. A low-contrast photo taken in poor lighting conditions won't work. Beautifiers will also render the photo unsuitable, as they flatten some facial regions in a way that important facial feature information is lost. However, <b>grayscale pictures are fine</b>. It's definitely worth experimenting with source images to find the ones that work best.",
     "<h3 class='mt-4'>How does it even work?</h3>",

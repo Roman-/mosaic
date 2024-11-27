@@ -107,9 +107,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let underMiniDiv = $("<div class='col-6'></div>").append(editPixelsBtn).css('margin-left', '50%');
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
-    if (Glob.cubeDimen % 3 === 0 && (Glob.pixelWidth * Glob.pixelHeight < Glob.maxCubesForMiniature * 9)) {
-        imagesDiv.append(underMiniDiv, underUnderDiv);
-    }
+    imagesDiv.append(underMiniDiv, underUnderDiv);
 
     function editPpClicked() {
         downloadGlobImageData();
@@ -640,9 +638,10 @@ function onImageHasBeenLoaded(img, fileName) {
     Glob.imgFileName = fileName;
     // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
     // with all sides devisible by 3
-    let isMiniature = ((Glob.img.width%3===0) && (Glob.img.height%3===0))
-        && (Glob.imgFileName.toLowerCase().startsWith('miniature')
-               || (Glob.img.width * Glob.img.height < Glob.maxCubesForMiniature * 9));
+    let isMiniature = (Glob.img.width % (Glob.cubeDimen)===0)
+        && (Glob.img.height % (Glob.cubeDimen)===0)
+        && Glob.imgFileName.toLowerCase().startsWith('miniature');
+    console.log("isMiniature", isMiniature, Glob.img.height, Glob.img.width, "dimen", Glob.cubeDimen);
 
     if (isMiniature) {
         doAfterLoadingSpinner(onMiniatureUploaded);
@@ -655,7 +654,6 @@ function onImageHasBeenLoaded(img, fileName) {
 function onMiniatureUploaded() {
     $(Glob.img).off('load');
 
-    Glob.cubeDimen = 3;
     Glob.pixelWidth = Glob.img.width;
     Glob.pixelHeight = Glob.img.height;
 

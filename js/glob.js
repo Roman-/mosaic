@@ -12,7 +12,6 @@ Glob.canvas = null; // jquery canvas that we use to draw our image on
 Glob.imageData = null; // ImageData object which we'll eventually make PDF split of
 Glob.imgFileName = ""; // uploaded file name
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
-Glob.maxCubesForMiniature = 2500; // heuristics for maximum cubes (pixels/9) that a miniature file can have
 
 Glob.bottomToTop = true; // output PDF bottom-to-top
 Glob.pdfDrawLetters = true; // draw color-notation letters inside squares
