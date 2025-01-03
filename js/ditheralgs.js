@@ -258,20 +258,12 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
             err[b] = d[b] - approx[2];
 
             // Diffuse the error
-            d[$i(x+step,y)] =  d[$i(x+step,y)] + 7 * ratio * err[r];
-            d[$i(x-step,y+1)] =  d[$i(x-1,y+step)] + 3 * ratio * err[r];
-            d[$i(x,y+step)] =  d[$i(x,y+step)] + 5 * ratio * err[r];
-            d[$i(x+step,y+step)] =  d[$i(x+1,y+step)] + 1 * ratio * err[r];
-
-            d[$i(x+step,y)+1] =  d[$i(x+step,y)+1] + 7 * ratio * err[g];
-            d[$i(x-step,y+step)+1] =  d[$i(x-step,y+step)+1] + 3 * ratio * err[g];
-            d[$i(x,y+step)+1] =  d[$i(x,y+step)+1] + 5 * ratio * err[g];
-            d[$i(x+step,y+step)+1] =  d[$i(x+step,y+step)+1] + 1 * ratio * err[g];
-
-            d[$i(x+step,y)+2] =  d[$i(x+step,y)+2] + 7 * ratio * err[b];
-            d[$i(x-step,y+step)+2] =  d[$i(x-step,y+step)+2] + 3 * ratio * err[b];
-            d[$i(x,y+step)+2] =  d[$i(x,y+step)+2] + 5 * ratio * err[b];
-            d[$i(x+step,y+step)+2] =  d[$i(x+step,y+step)+2] + 1 * ratio * err[b];
+            for (let shift = 0; shift <= 2; shift++) {
+                d[$i(x+step,y) + shift] =  d[$i(x+step,y) + shift] + 7 * ratio * err[i + shift];
+                d[$i(x-step,y+1) + shift] =  d[$i(x-1,y+step) + shift] + 3 * ratio * err[i + shift];
+                d[$i(x,y+step) + shift] =  d[$i(x,y+step) + shift] + 5 * ratio * err[i + shift];
+                d[$i(x+step,y+step) + shift] =  d[$i(x+1,y+step) + shift] + 1 * ratio * err[i + shift];
+            }
 
             // Color
             tr = approx[0];
