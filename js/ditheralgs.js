@@ -236,7 +236,7 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
         return (4*x) + (4*y*w);
     };
 
-    var r, g, b, a, err, i, color, approx, tr, tg, tb, dx, dy, di;
+    var r, g, b, a, err, i, color, approx;
 
     for (y=0;y<h;y += 1) {
         for (x=0;x<w;x += 1) {
@@ -258,21 +258,16 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
 
             // Diffuse the error
             for (let shift = 0; shift <= 2; shift++) {
-                d[$i(x+1,y) + shift] =  d[$i(x+1,y) + shift] + 7 * ratio * err[i + shift];
-                d[$i(x-1,y+1) + shift] =  d[$i(x-1,y+1) + shift] + 3 * ratio * err[i + shift];
-                d[$i(x,y+1) + shift] =  d[$i(x,y+1) + shift] + 5 * ratio * err[i + shift];
-                d[$i(x+1,y+1) + shift] =  d[$i(x+1,y+1) + shift] + 1 * ratio * err[i + shift];
+                d[$i(x+1,y) + shift] += 5 * ratio * err[i + shift];
+                d[$i(x-1,y+1) + shift] += 3 * ratio * err[i + shift];
+                d[$i(x,y+1) + shift] += 7 * ratio * err[i + shift];
+                d[$i(x+1,y+1) + shift] += 1 * ratio * err[i + shift];
             }
 
-            // Color
-            tr = approx[0];
-            tg = approx[1];
-            tb = approx[2];
-
             // Draw pixel
-            out[i] = tr;
-            out[i+1] = tg;
-            out[i+2] = tb;
+            out[i] = approx[0];
+            out[i+1] = approx[1];
+            out[i+2] = approx[2];
         }
     }
     return new ImageData(out, w);
