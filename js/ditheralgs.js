@@ -228,7 +228,6 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
     var d = new Uint8ClampedArray(imageData.data);
     var out = new Uint8ClampedArray(imageData.data);
     var w = imageData.width; var h = imageData.height;
-    let step = 1; // greater values combine multiple pixels in one, visually lowering the resolution
     let ratioDenomScaled = 1.5 + (ratioDenom / 5 * (15-1.5));
     // default ratio = 1/16;
     var ratio = 1/(ratioDenomScaled*4);
@@ -239,8 +238,8 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
 
     var r, g, b, a, err, i, color, approx, tr, tg, tb, dx, dy, di;
 
-    for (y=0;y<h;y += step) {
-        for (x=0;x<w;x += step) {
+    for (y=0;y<h;y += 1) {
+        for (x=0;x<w;x += 1) {
             i = (4*x) + (4*y*w);
 
             // Define bytes
@@ -259,10 +258,10 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
 
             // Diffuse the error
             for (let shift = 0; shift <= 2; shift++) {
-                d[$i(x+step,y) + shift] =  d[$i(x+step,y) + shift] + 7 * ratio * err[i + shift];
-                d[$i(x-step,y+1) + shift] =  d[$i(x-1,y+step) + shift] + 3 * ratio * err[i + shift];
-                d[$i(x,y+step) + shift] =  d[$i(x,y+step) + shift] + 5 * ratio * err[i + shift];
-                d[$i(x+step,y+step) + shift] =  d[$i(x+1,y+step) + shift] + 1 * ratio * err[i + shift];
+                d[$i(x+1,y) + shift] =  d[$i(x+1,y) + shift] + 7 * ratio * err[i + shift];
+                d[$i(x-1,y+1) + shift] =  d[$i(x-1,y+1) + shift] + 3 * ratio * err[i + shift];
+                d[$i(x,y+1) + shift] =  d[$i(x,y+1) + shift] + 5 * ratio * err[i + shift];
+                d[$i(x+1,y+1) + shift] =  d[$i(x+1,y+1) + shift] + 1 * ratio * err[i + shift];
             }
 
             // Color
@@ -270,17 +269,10 @@ function playgroundDither(imageData, palette, ratioDenom = 3) {
             tg = approx[1];
             tb = approx[2];
 
-            // Draw a block
-            for (dx=0;dx<step;dx++){
-                for (dy=0;dy<step;dy++){
-                    di = i + (4 * dx) + (4 * w * dy);
-
-                    // Draw pixel
-                    out[di] = tr;
-                    out[di+1] = tg;
-                    out[di+2] = tb;
-                }
-            }
+            // Draw pixel
+            out[i] = tr;
+            out[i+1] = tg;
+            out[i+2] = tb;
         }
     }
     return new ImageData(out, w);
