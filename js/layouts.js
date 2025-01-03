@@ -565,6 +565,7 @@ function lo2ndChoice(chooseOptions, opt) {
         case Methods.ATKINSON:
         case Methods.ORDERED:
         case Methods.ERROR_DIFFUSION:
+        case Methods.PLAYGROUND:
             return doAfterLoadingSpinner(()=>loDitherAdjustment(chooseOptions, opt));
         default: console.error("unknown chooseOptions.method", chooseOptions);
     }

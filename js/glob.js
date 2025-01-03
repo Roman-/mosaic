@@ -16,7 +16,7 @@ Glob.canvasBlur = null; // blur object (see ditheralgs.js)
 Glob.bottomToTop = true; // output PDF bottom-to-top
 Glob.pdfDrawLetters = true; // draw color-notation letters inside squares
 Glob.pdfBwPrinter = false; // black-and-white printer? If true, will draw white squares instead of colored
-Glob.debugModeOn = false;
+Glob.debugModeOn = true;
 
 Glob.initialCubeDimen = 3; // 1 for pixart, 3 for 3x3 cubes
 Glob.initialCubeWidth = 20;
@@ -42,6 +42,7 @@ Glob.plasticColor = '#eee'; // color of cube plastic (border around stickers)
 Glob.chooseSets = function () {
     let chooseSets = [
         // add a few gradients. The opts are purely heuristical :(
+/*
         {
             name: 'Portrait',
             method: Methods.GRADIENT,
@@ -56,7 +57,7 @@ Glob.chooseSets = function () {
             opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
             displayName: 'Diffusion'
         },
-/*
+*/
         {
             name: 'Atkinson',
             method: Methods.ATKINSON,
@@ -64,7 +65,13 @@ Glob.chooseSets = function () {
             opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
             displayName: 'Atkinson dither'
         },
-*/
+        {
+            name: 'Playground',
+            method: Methods.PLAYGROUND,
+            palette: getFullPalette(),
+            opts: [0.4, 1.0, 1.8, 2.9, 3.8, 5.7],
+            displayName: 'Playground dither'
+        },
         {
             name: 'Ordered',
             method: Methods.ORDERED,

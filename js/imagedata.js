@@ -43,6 +43,9 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true) 
         case Methods.ATKINSON:
             newImageData = atkinsonDither(imageData, palette, param);
             break;
+        case Methods.PLAYGROUND:
+            newImageData = playgroundDither(imageData, palette, param);
+            break;
         case Methods.CLOSEST_COLOR:
             newImageData = imageData;
             closestColorMethod(newImageData, palette, param);

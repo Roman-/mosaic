@@ -124,6 +124,7 @@ function getPalettesExcludingColors() {
         }
     }
 
+/*
     indexes.forEach(function (index) {
         // add to PALS palette of all colors except for index
         let currentPal = [];
@@ -135,6 +136,7 @@ function getPalettesExcludingColors() {
 
         pals.push({"colors": currentPal, "name": "without " + Glob.palette[index]["name"]});
     });
+*/
     return pals;
 }
 
