@@ -19,7 +19,6 @@ function initLocalStorageVars() {
     Glob.pdfDrawLetters = loadLocalBool('pdfDrawLetters', Glob.pdfDrawLetters);
     Glob.bottomToTop = loadLocalBool('bottomToTop', Glob.bottomToTop);
     Glob.pdfBwPrinter = loadLocalBool('pdfBwPrinter', Glob.pdfBwPrinter);
-    Glob.debugModeOn = loadLocalBool('mosaicDebugMode', false);
 }
 
 function initMenu() {

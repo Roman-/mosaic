@@ -474,6 +474,9 @@ function loCropper() {
     heightInput.inputSpinner();
 
     setTitle('Resize <i class="fa fa-cubes"></i> and crop <i class="fa fa-cut"></i>');
+    if (Glob.debugModeOn) {
+        setTimeout(onCropImage, 50);
+    }
 }
 
 // layout with 1-st step choose. Displays a bunch of canvases
