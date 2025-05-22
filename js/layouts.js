@@ -72,6 +72,54 @@ function loDropImage() {
     }, 1)
 }
 
+function downloadHighRes(heightPx) {
+    if (!Glob.imageData) {         // nothing rendered yet? draw once.
+        console.warn("No imageData – redrawing once.");
+        return;                    // user should click again afterwards
+    }
+
+    const src      = Glob.imageData;
+    const outW     = Math.round(src.width * heightPx / src.height);
+    const outH     = heightPx
+    const step     = outW / src.width;            // square size (float OK)
+
+    const cv       = document.createElement("canvas");
+    cv.width       = outW;
+    cv.height      = outH;
+    const ctx      = cv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    // draw coloured squares
+    let i = 0;
+    for (let y = 0; y < src.height; ++y) {
+        for (let x = 0; x < src.width; ++x) {
+            const r = src.data[i++];      // R
+            const g = src.data[i++];      // G
+            const b = src.data[i++];      // B
+            i++;                          // skip A
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.fillRect(x * step, y * step, step, step);
+            if (Glob.plasticColor) {
+                ctx.strokeStyle = Glob.plasticColor;
+                ctx.lineWidth   = 1;
+                ctx.strokeRect(x * step, y * step, step, step);
+            }
+        }
+    }
+
+    // JPEG export & download
+    const url  = cv.toDataURL("image/jpeg", 0.92)
+        .replace("image/jpeg", "image/octet-stream");
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = (Glob.imgFileName ?
+            filenameFromPath(Glob.imgFileName) : "mosaic") +
+        "_" + heightPx + "px.jpg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
 function loAdjustPortrait(chooseOptions, opt) {
     // redraws mosaic on canvas
@@ -104,7 +152,15 @@ function loAdjustPortrait(chooseOptions, opt) {
         .addClass('col-6');
     let editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("edit"), " edit pixel-by-pixel").click(editPpClicked);
-    let underMiniDiv = $("<div class='col-6'></div>").append(editPixelsBtn).css('margin-left', '50%');
+    let downloadPreviewBtn1 = $("<button class='btn btn-link pt-0'></button>")
+        .append(fa("download"), " download preview (4k)")
+        .click(() => downloadHighRes(2000));
+    let downloadPreviewBtn2 = $("<button class='btn btn-link pt-0'></button>")
+        .append(fa("download"), " download preview (8k)")
+        .click(() => downloadHighRes(4000));
+    let underMiniDiv =
+        $("<div class='col-12'></div>")
+            .append(editPixelsBtn, "<br>", downloadPreviewBtn1, "<br>", downloadPreviewBtn2);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
