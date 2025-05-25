@@ -108,13 +108,11 @@ function downloadHighRes(heightPx) {
     }
 
     // JPEG export & download
-    const url  = cv.toDataURL("image/jpeg", 0.92)
-        .replace("image/jpeg", "image/octet-stream");
+    const url  = cv.toDataURL("image/jpeg", 0.92).replace("image/jpeg", "image/octet-stream");
     const a    = document.createElement("a");
     a.href     = url;
-    a.download = (Glob.imgFileName ?
-            filenameFromPath(Glob.imgFileName) : "mosaic") +
-        "_" + heightPx + "px.jpg";
+    a.download = (Glob.imgFileName ? filenameFromPath(Glob.imgFileName) : "mosaic")
+        + "_" + outW + "x" + heightPx + "px.jpg";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -154,10 +152,10 @@ function loAdjustPortrait(chooseOptions, opt) {
         .append(fa("edit"), " edit pixel-by-pixel").click(editPpClicked);
     let downloadPreviewBtn1 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (4k)")
-        .click(() => downloadHighRes(2000));
+        .click(() => downloadHighRes(4000));
     let downloadPreviewBtn2 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (8k)")
-        .click(() => downloadHighRes(4000));
+        .click(() => downloadHighRes(8000));
     let underMiniDiv =
         $("<div class='col-12'></div>")
             .append(editPixelsBtn, "<br>", downloadPreviewBtn1, "<br>", downloadPreviewBtn2);
@@ -298,10 +296,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
         $("<div/>").append(
-            $("<a href='https://discord.gg/8psRGEvyEj' target='_blank' class='btn btn-info form-control my-1'><i class='fab fa-discord'></i> Join Discord</a>"),
-        ),
-        $("<div/>").append(
-            $("<a class='btn btn-outline-info form-control my-1'  href='https://www.paypal.com/paypalme/romanisawesome' target='_blank'><i class='fab fa-paypal'></i> Support project</a>"),
+            $("<a href='https://discord.gg/8psRGEvyEj' target='_blank' class='btn btn-info form-control my-1 text-decoration-none'><i class='fab fa-discord'></i> Join Discord</a>"),
         )
     ).css('display', 'none');
 
@@ -677,7 +672,7 @@ function calculatePixelWh() {
 // download Glob.imageData as PNG image
 function downloadGlobImageData() {
     let link = $("<a></a>");
-    link.attr('download', 'miniature.png');
+    link.attr('download', `miniature_${Glob.pixelWidth}x${Glob.pixelHeight}_px.png`);
     link.attr('href', imageDataToPngDataUrl(Glob.imageData));
     link.get(0).click();
 }
