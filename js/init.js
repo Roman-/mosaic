@@ -16,6 +16,10 @@ function initLocalStorageVars() {
     Glob.initialCubeHeight = loadLocalInt('initialCubeHeight', Glob.initialCubeHeight);
     Glob.initialCubeDimen = loadLocalInt('initialCubeDimen', Glob.initialCubeDimen);
     Glob.cubeDimen = Glob.initialCubeDimen;
+    let defBw = (Glob.initialCubeDimen === 1) ? Glob.defaultBlockWidthPixels : Glob.defaultBlockWidthCubes;
+    let defBh = (Glob.initialCubeDimen === 1) ? Glob.defaultBlockHeightPixels : Glob.defaultBlockHeightCubes;
+    Glob.blockWidthCubes = loadLocalIntBounded('blockWidthCubes', defBw, 1, 20);
+    Glob.blockHeightCubes = loadLocalIntBounded('blockHeightCubes', defBh, 1, 20);
     Glob.pdfDrawLetters = loadLocalBool('pdfDrawLetters', Glob.pdfDrawLetters);
     Glob.bottomToTop = loadLocalBool('bottomToTop', Glob.bottomToTop);
     Glob.pdfBwPrinter = loadLocalBool('pdfBwPrinter', Glob.pdfBwPrinter);

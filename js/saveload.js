@@ -38,6 +38,14 @@ function loadLocalInt(name, defaultValue) {
     return (Number.isSafeInteger(result)) ? result : defaultValue;
 }
 
+// @returns loaded integer clamped to [minVal, maxVal]
+function loadLocalIntBounded(name, defaultValue, minVal, maxVal) {
+    let val = loadLocalInt(name, defaultValue);
+    if (!Number.isSafeInteger(val) || val < minVal || val > maxVal)
+        return defaultValue;
+    return val;
+}
+
 // @returns loaded value as boolean
 function loadLocalBool(name, defaultValue) {
     let result = loadLocal(name, defaultValue);

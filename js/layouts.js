@@ -212,14 +212,20 @@ function loAdjustPortrait(chooseOptions, opt) {
             $("<input type='number' min='1' max='20'>")
                 .attr('title', 'Block width')
                 .attr('data-prefix', '<span class="fa fa-arrows-alt-h fa-fw"></span>')
-                .val(Glob.cubeDimen === 1 ? Glob.defaultBlockWidthPixels : Glob.defaultBlockWidthCubes)
-                .change(function () {Glob.blockWidthCubes = $(this).val();})
+                .val(Glob.blockWidthCubes)
+                .change(function () {
+                    Glob.blockWidthCubes = parseInt($(this).val());
+                    saveLocal('blockWidthCubes', Glob.blockWidthCubes);
+                })
                 .trigger('change'),
             $("<input type='number' min='1' max='20'>")
                 .attr('title', 'Block height')
                 .attr('data-prefix', '<span class="fa fa-arrows-alt-v fa-fw"></span>')
-                .val(Glob.cubeDimen === 1 ? Glob.defaultBlockHeightPixels : Glob.defaultBlockHeightCubes)
-                .change(function () {Glob.blockHeightCubes = $(this).val();})
+                .val(Glob.blockHeightCubes)
+                .change(function () {
+                    Glob.blockHeightCubes = parseInt($(this).val());
+                    saveLocal('blockHeightCubes', Glob.blockHeightCubes);
+                })
                 .trigger('change')
             );
     let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'>").append(
@@ -265,6 +271,8 @@ function loAdjustPortrait(chooseOptions, opt) {
                 saveLocal('bottomToTop', Glob.bottomToTop);
                 saveLocal('pdfDrawLetters', Glob.pdfDrawLetters);
                 saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
+                saveLocal('blockWidthCubes', Glob.blockWidthCubes);
+                saveLocal('blockHeightCubes', Glob.blockHeightCubes);
                 setTimeout(() => promoDiv.css('display', 'block'), 300)
             }, 50);
         });
