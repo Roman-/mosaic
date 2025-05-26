@@ -3,18 +3,6 @@ function clamp(x, min, max) {
     return Math.min(max, Math.max(x, min))
 }
 
-// shuffles array in place
-function shuffle(a) {
-    var j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        x = a[i];
-        a[i] = a[j];
-        a[j] = x;
-    }
-    return a;
-}
-
 // shows modal bootstrap dialog
 // @param content: either string or jquery object
 // fullscreen: display fullscreen modal
@@ -114,35 +102,6 @@ function downloadPlainText(text, fileName) {
     element.click();
 
     document.body.removeChild(element);
-}
-
-/// @param onSuccess - function with one argument - response
-/// @param onError - function with one argument - error string
-function sendPost(url, params, onSuccess, onError = null) {
-    if (!onError)
-        onError = function (res) {console.error(res);}
-    if (!onSuccess)
-        onSuccess = function (res) {console.log("sending post result: ", res);}
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.timeout = 5000; // time in milliseconds
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.onload = function (e) {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                onSuccess(xhr.responseText);
-            } else {
-              onError("XMLHttpRequest status "+xhr.status+": " + xhr.statusText);
-            }
-        }
-    };
-    xhr.onerror = function (e) {
-        onError(xhr.statusText);
-    };
-    xhr.ontimeout = function (e) {
-      onError("Connection timeout (" + (xhr.timeout / 1000) + " seconds)");
-    };
-    xhr.send(params);
 }
 
 // @returns FontAwesome icon with specified name
