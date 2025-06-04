@@ -26,6 +26,8 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true) 
     let newWidth = canvas.width();
     canvas.attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight);
     let ctx = canvas[0].getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(Glob.img, 0, 0, Glob.img.width, Glob.img.height, 0, 0, Glob.pixelWidth, Glob.pixelHeight);
     let imageData = ctx.getImageData(0, 0, Glob.pixelWidth, Glob.pixelHeight);
     let newImageData = null;
