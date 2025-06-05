@@ -14,6 +14,23 @@ function doAfterLoadingSpinner(callback) {
     setTimeout(callback, 10);
 }
 
+// resets image effects and restores the original image
+function resetImgEffects() {
+    Glob.imgEffects = {
+        brightness:0,
+        contrast:0,
+        unsharpRadius:0,
+        unsharpStrength:2,
+        noise:0,
+        hue:0,
+        saturation:0,
+        vibrance:0
+    };
+    Glob.fxCanvas = null;
+    if (Glob.origImg)
+        Glob.img.src = Glob.origImg.src;
+}
+
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");
@@ -21,7 +38,7 @@ let editColorsFooterBtn = () => $("<button class='btn btn-outline-primary m-1'><
     .append(fa("brush"), " Customize colors")
     .click(()=>doAfterLoadingSpinner(loPalette));
 let changeMethodFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
-    .click(() => doAfterLoadingSpinner(loChoose))
+    .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose) })
     .append(fa("undo"), " Choose different method");
 
 // main layout with "drop image" thing
@@ -125,16 +142,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         Glob.origImg.src = Glob.img.src;
     }
     // reset image effects on entering the layout
-    Glob.imgEffects = {
-        brightness:0,
-        contrast:0,
-        unsharpRadius:0,
-        unsharpStrength:2,
-        noise:0,
-        hue:0,
-        saturation:0,
-        vibrance:0
-    };
+    resetImgEffects();
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
@@ -373,16 +381,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
         .text('Reset effects')
         .click(() => {
-            Glob.imgEffects = {
-                brightness:0,
-                contrast:0,
-                unsharpRadius:0,
-                unsharpStrength:2,
-                noise:0,
-                hue:0,
-                saturation:0,
-                vibrance:0
-            };
+            resetImgEffects();
             brInput.val(0); coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(2);
             noiseInput.val(0); hueInput.val(0); satInput.val(0); vibInput.val(0);
             brVal.text(0); coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(2);
@@ -472,7 +471,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .click(()=>doAfterLoadingSpinner(loPalette));
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
-        .click(() => doAfterLoadingSpinner(loChoose));
+        .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose); });
     let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
