@@ -12,6 +12,7 @@ Glob.canvas = null; // jquery canvas that we use to draw our image on
 Glob.imageData = null; // ImageData object which we'll eventually make PDF split of
 Glob.imgFileName = ""; // uploaded file name
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
+Glob.origImg=null; Glob.fxCanvas=null; Glob.imgEffects={brightness:0,contrast:0,unsharpRadius:0,unsharpStrength:2};
 
 Glob.bottomToTop = true; // output PDF bottom-to-top
 Glob.pdfDrawLetters = true; // draw color-notation letters inside squares

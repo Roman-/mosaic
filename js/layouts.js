@@ -120,6 +120,10 @@ function downloadHighRes(heightPx) {
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
 function loAdjustPortrait(chooseOptions, opt) {
+    if (!Glob.origImg) {
+        Glob.origImg = new Image();
+        Glob.origImg.src = Glob.img.src;
+    }
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
@@ -166,6 +170,26 @@ function loAdjustPortrait(chooseOptions, opt) {
     function editPpClicked() {
         downloadGlobImageData();
         underUnderDiv.html(Txt.editPixelByPixel);
+    }
+
+    function applyImgEffects() {
+        if (!Glob.origImg) return;
+        if (!Glob.fxCanvas) {
+            try { Glob.fxCanvas = fx.canvas(); }
+            catch (e) { console.error(e); return; }
+        }
+        let texture = Glob.fxCanvas.texture(Glob.origImg);
+        Glob.fxCanvas.draw(texture);
+        if (Glob.imgEffects.brightness !== 0 || Glob.imgEffects.contrast !== 0)
+            Glob.fxCanvas.brightnessContrast(Glob.imgEffects.brightness, Glob.imgEffects.contrast);
+        if (Glob.imgEffects.unsharpRadius > 0)
+            Glob.fxCanvas.unsharpMask(Glob.imgEffects.unsharpRadius, Glob.imgEffects.unsharpStrength);
+        Glob.fxCanvas.update();
+
+        let dataUrl = Glob.fxCanvas.toDataURL();
+        $(Glob.img).off('load.fx').one('load.fx', redrawMosaicWithUiRanges);
+        Glob.img.src = dataUrl;
+        imgTag.attr('src', dataUrl);
     }
 
     // @returns div with image adjustments spinners
@@ -282,6 +306,38 @@ function loAdjustPortrait(chooseOptions, opt) {
                 })
                 .trigger('change')
             );
+    let brVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.brightness);
+    let brInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
+        .val(Glob.imgEffects.brightness)
+        .attr('title','brightness')
+        .on('input', () => { Glob.imgEffects.brightness = parseFloat(brInput.val()); brVal.text(brInput.val()); applyImgEffects(); });
+
+    let coVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.contrast);
+    let coInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
+        .val(Glob.imgEffects.contrast)
+        .attr('title','contrast')
+        .on('input', () => { Glob.imgEffects.contrast = parseFloat(coInput.val()); coVal.text(coInput.val()); applyImgEffects(); });
+
+    let unsharpRadiusVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpRadius);
+    let unsharpRadiusInput = $("<input type='range' min='0' max='250' step='1' class='form-range'>")
+        .val(Glob.imgEffects.unsharpRadius)
+        .attr('title','unsharp radius')
+        .on('input', () => { Glob.imgEffects.unsharpRadius = parseFloat(unsharpRadiusInput.val()); unsharpRadiusVal.text(unsharpRadiusInput.val()); applyImgEffects(); });
+
+    let unsharpStrengthVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpStrength);
+    let unsharpStrengthInput = $("<input type='range' min='0' max='5' step='0.1' class='form-range'>")
+        .val(Glob.imgEffects.unsharpStrength)
+        .attr('title','unsharp strength')
+        .on('input', () => { Glob.imgEffects.unsharpStrength = parseFloat(unsharpStrengthInput.val()); unsharpStrengthVal.text(unsharpStrengthInput.val()); applyImgEffects(); });
+    let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
+        .text('Reset effects')
+        .click(() => {
+            Glob.imgEffects = {brightness:0,contrast:0,unsharpRadius:0,unsharpStrength:0};
+            brInput.val(0); coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(0);
+            brVal.text(0); coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(0);
+            applyImgEffects();
+        });
+
     let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'>").append(
             $("<div>Preview plastic color:</div>"),
             plasticColorSelect,
@@ -292,6 +348,14 @@ function loAdjustPortrait(chooseOptions, opt) {
             bottomTopLabel,
             drawLettersLabel,
             dontUseColorLabel,
+        );
+
+    let fxControlsDiv = $("<div class='card-body border mt-2'></div>").append(
+            $("<div class='small'></div>").text('Brightness ').append(brVal), brInput,
+            $("<div class='small mt-1'></div>").text('Contrast ').append(coVal), coInput,
+            $("<div class='small mt-1'></div>").text('Unsharp radius ').append(unsharpRadiusVal), unsharpRadiusInput,
+            $("<div class='small mt-1'></div>").text('Unsharp strength ').append(unsharpStrengthVal), unsharpStrengthInput,
+            resetFxBtn
         );
 
     let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
@@ -357,6 +421,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         buildRangesDiv(),
         collapseBtn,
         collapsedDiv,
+        fxControlsDiv,
         promoDiv
     );
 
@@ -366,6 +431,11 @@ function loAdjustPortrait(chooseOptions, opt) {
     $("#mainLayout").html(div);
 
     $("input[type='number']").inputSpinner();
+    if (!Glob.origImg || !Glob.origImg.complete) {
+        $(Glob.origImg).one('load.fxinit', applyImgEffects);
+    } else {
+        applyImgEffects();
+    }
     plasticColorSelect.trigger('change');
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
     redrawMosaicWithUiRanges(true);
@@ -433,6 +503,7 @@ function loCropper() {
     function onCropImage() {
         setTitle('Working...');
         function onImageCroppedLoaded() {
+            $(Glob.img).off('load');
             let w = widthInput.val();
             let h = heightInput.val();
             Glob.cropper.destroy();
@@ -451,7 +522,10 @@ function loCropper() {
         }
 
         $(Glob.img).off('load').on('load', onImageCroppedLoaded); // TODO I think off('load') wouldn't work
-        Glob.img.src = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
+        let dataUrl = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
+        Glob.origImg = new Image();
+        Glob.origImg.src = dataUrl;
+        Glob.img.src = dataUrl;
     }
     let cubeDimenSelect = $("<select id='cubeDimen' class='form-select'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {
