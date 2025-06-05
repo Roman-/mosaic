@@ -323,6 +323,12 @@ function loAdjustPortrait(chooseOptions, opt) {
                 })
                 .trigger('change')
             );
+    let brVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.brightness);
+    let brInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
+        .val(Glob.imgEffects.brightness)
+        .attr('title','brightness')
+        .on('input', () => { Glob.imgEffects.brightness = parseFloat(brInput.val()); brVal.text(brInput.val()); applyImgEffects(); });
+
     let coVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.contrast);
     let coInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
         .val(Glob.imgEffects.contrast)
@@ -354,15 +360,15 @@ function loAdjustPortrait(chooseOptions, opt) {
         .on('input', () => { Glob.imgEffects.vibrance = parseFloat(vibInput.val()); vibVal.text(vibInput.val()); applyImgEffects(); });
 
     let unsharpRadiusVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpRadius);
-    let unsharpRadiusInput = $("<input type='range' min='0' max='20' step='1' class='form-range'>")
+    let unsharpRadiusInput = $("<input type='range' min='0' max='20' step='0.1' class='form-range'>")
         .val(Glob.imgEffects.unsharpRadius)
-        .attr('title','unsharp radius')
+        .attr('title','sharpen')
         .on('input', () => { Glob.imgEffects.unsharpRadius = parseFloat(unsharpRadiusInput.val()); unsharpRadiusVal.text(unsharpRadiusInput.val()); applyImgEffects(); });
 
     let unsharpStrengthVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpStrength);
     let unsharpStrengthInput = $("<input type='range' min='0' max='5' step='0.1' class='form-range'>")
         .val(Glob.imgEffects.unsharpStrength)
-        .attr('title','unsharp strength')
+        .attr('title','amount')
         .on('input', () => { Glob.imgEffects.unsharpStrength = parseFloat(unsharpStrengthInput.val()); unsharpStrengthVal.text(unsharpStrengthInput.val()); applyImgEffects(); });
     let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
         .text('Reset effects')
@@ -377,9 +383,9 @@ function loAdjustPortrait(chooseOptions, opt) {
                 saturation:0,
                 vibrance:0
             };
-            coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(2);
+            brInput.val(0); coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(2);
             noiseInput.val(0); hueInput.val(0); satInput.val(0); vibInput.val(0);
-            coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(2);
+            brVal.text(0); coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(2);
             noiseVal.text(0); hueVal.text(0); satVal.text(0); vibVal.text(0);
             applyImgEffects();
         });
@@ -396,16 +402,20 @@ function loAdjustPortrait(chooseOptions, opt) {
             dontUseColorLabel,
         );
 
-    let fxControlsDiv = $("<div class='card-body border mt-2'></div>").append(
-            $("<div class='small'></div>").text('Contrast ').append(coVal), coInput,
+    let fxControlsDiv = $("<div class='collapse card-body border mt-2' id='collapsedFx'></div>").append(
+            $("<div class='small'></div>").text('Brightness ').append(brVal), brInput,
+            $("<div class='small mt-1'></div>").text('Contrast ').append(coVal), coInput,
             $("<div class='small mt-1'></div>").text('Noise ').append(noiseVal), noiseInput,
             $("<div class='small mt-1'></div>").text('Hue ').append(hueVal), hueInput,
             $("<div class='small mt-1'></div>").text('Saturation ').append(satVal), satInput,
             $("<div class='small mt-1'></div>").text('Vibrance ').append(vibVal), vibInput,
-            $("<div class='small mt-1'></div>").text('Unsharp radius ').append(unsharpRadiusVal), unsharpRadiusInput,
-            $("<div class='small mt-1'></div>").text('Unsharp strength ').append(unsharpStrengthVal), unsharpStrengthInput,
+            $("<div class='small mt-1'></div>").text('Sharpen ').append(unsharpRadiusVal), unsharpRadiusInput,
+            $("<div class='small mt-1'></div>").text('Amount ').append(unsharpStrengthVal), unsharpStrengthInput,
             resetFxBtn
         );
+
+    let fxCollapseBtn = $("<button class='btn btn-outline-secondary form-control mt-2' data-bs-toggle='collapse' data-bs-target='#collapsedFx'></button>")
+        .html('Effects <i class="fa fa-angle-down"></i>');
 
     let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
         $("<div/>").append(
@@ -470,6 +480,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         buildRangesDiv(),
         collapseBtn,
         collapsedDiv,
+        fxCollapseBtn,
         fxControlsDiv,
         promoDiv
     );
