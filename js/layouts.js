@@ -125,7 +125,16 @@ function loAdjustPortrait(chooseOptions, opt) {
         Glob.origImg.src = Glob.img.src;
     }
     // reset image effects on entering the layout
-    Glob.imgEffects = {brightness:0, contrast:0, unsharpRadius:0, unsharpStrength:2};
+    Glob.imgEffects = {
+        brightness:0,
+        contrast:0,
+        unsharpRadius:0,
+        unsharpStrength:2,
+        noise:0,
+        hue:0,
+        saturation:0,
+        vibrance:0
+    };
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
@@ -182,6 +191,12 @@ function loAdjustPortrait(chooseOptions, opt) {
         }
         let texture = Glob.fxCanvas.texture(Glob.origImg);
         Glob.fxCanvas.draw(texture);
+        if (Glob.imgEffects.noise > 0)
+            Glob.fxCanvas.noise(Glob.imgEffects.noise);
+        if (Glob.imgEffects.hue !== 0 || Glob.imgEffects.saturation !== 0)
+            Glob.fxCanvas.hueSaturation(Glob.imgEffects.hue, Glob.imgEffects.saturation);
+        if (Glob.imgEffects.vibrance !== 0)
+            Glob.fxCanvas.vibrance(Glob.imgEffects.vibrance);
         if (Glob.imgEffects.brightness !== 0 || Glob.imgEffects.contrast !== 0)
             Glob.fxCanvas.brightnessContrast(Glob.imgEffects.brightness, Glob.imgEffects.contrast);
         if (Glob.imgEffects.unsharpRadius > 0)
@@ -314,6 +329,30 @@ function loAdjustPortrait(chooseOptions, opt) {
         .attr('title','contrast')
         .on('input', () => { Glob.imgEffects.contrast = parseFloat(coInput.val()); coVal.text(coInput.val()); applyImgEffects(); });
 
+    let noiseVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.noise);
+    let noiseInput = $("<input type='range' min='0' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.noise)
+        .attr('title','noise')
+        .on('input', () => { Glob.imgEffects.noise = parseFloat(noiseInput.val()); noiseVal.text(noiseInput.val()); applyImgEffects(); });
+
+    let hueVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.hue);
+    let hueInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.hue)
+        .attr('title','hue')
+        .on('input', () => { Glob.imgEffects.hue = parseFloat(hueInput.val()); hueVal.text(hueInput.val()); applyImgEffects(); });
+
+    let satVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.saturation);
+    let satInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.saturation)
+        .attr('title','saturation')
+        .on('input', () => { Glob.imgEffects.saturation = parseFloat(satInput.val()); satVal.text(satInput.val()); applyImgEffects(); });
+
+    let vibVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.vibrance);
+    let vibInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.vibrance)
+        .attr('title','vibrance')
+        .on('input', () => { Glob.imgEffects.vibrance = parseFloat(vibInput.val()); vibVal.text(vibInput.val()); applyImgEffects(); });
+
     let unsharpRadiusVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpRadius);
     let unsharpRadiusInput = $("<input type='range' min='0' max='20' step='1' class='form-range'>")
         .val(Glob.imgEffects.unsharpRadius)
@@ -328,9 +367,20 @@ function loAdjustPortrait(chooseOptions, opt) {
     let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
         .text('Reset effects')
         .click(() => {
-            Glob.imgEffects = {brightness:0,contrast:0,unsharpRadius:0,unsharpStrength:2};
+            Glob.imgEffects = {
+                brightness:0,
+                contrast:0,
+                unsharpRadius:0,
+                unsharpStrength:2,
+                noise:0,
+                hue:0,
+                saturation:0,
+                vibrance:0
+            };
             coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(2);
+            noiseInput.val(0); hueInput.val(0); satInput.val(0); vibInput.val(0);
             coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(2);
+            noiseVal.text(0); hueVal.text(0); satVal.text(0); vibVal.text(0);
             applyImgEffects();
         });
 
@@ -348,6 +398,10 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     let fxControlsDiv = $("<div class='card-body border mt-2'></div>").append(
             $("<div class='small'></div>").text('Contrast ').append(coVal), coInput,
+            $("<div class='small mt-1'></div>").text('Noise ').append(noiseVal), noiseInput,
+            $("<div class='small mt-1'></div>").text('Hue ').append(hueVal), hueInput,
+            $("<div class='small mt-1'></div>").text('Saturation ').append(satVal), satInput,
+            $("<div class='small mt-1'></div>").text('Vibrance ').append(vibVal), vibInput,
             $("<div class='small mt-1'></div>").text('Unsharp radius ').append(unsharpRadiusVal), unsharpRadiusInput,
             $("<div class='small mt-1'></div>").text('Unsharp strength ').append(unsharpStrengthVal), unsharpStrengthInput,
             resetFxBtn
