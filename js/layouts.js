@@ -402,15 +402,32 @@ function loAdjustPortrait(chooseOptions, opt) {
             dontUseColorLabel,
         );
 
+    function mkFxControl(name, key, valSpan, input, defVal) {
+        let resetBtn = $("<button type='button' class='btn btn-sm btn-outline-secondary fx-reset'></button>")
+            .append(fa("undo"))
+            .attr('title', 'reset')
+            .click(() => {
+                Glob.imgEffects[key] = defVal;
+                input.val(defVal);
+                valSpan.text(defVal);
+                applyImgEffects();
+            });
+        return $("<div class='fx-control small mt-1'></div>")
+            .append($("<span class='fx-label'></span>").text(name).attr('title', name))
+            .append(valSpan.addClass('fx-val ms-1'))
+            .append(input.addClass('flex-grow-1 ms-1'))
+            .append(resetBtn);
+    }
+
     let fxControlsDiv = $("<div class='collapse card-body border mt-2' id='collapsedFx'></div>").append(
-            $("<div class='small'></div>").text('Brightness ').append(brVal), brInput,
-            $("<div class='small mt-1'></div>").text('Contrast ').append(coVal), coInput,
-            $("<div class='small mt-1'></div>").text('Noise ').append(noiseVal), noiseInput,
-            $("<div class='small mt-1'></div>").text('Hue ').append(hueVal), hueInput,
-            $("<div class='small mt-1'></div>").text('Saturation ').append(satVal), satInput,
-            $("<div class='small mt-1'></div>").text('Vibrance ').append(vibVal), vibInput,
-            $("<div class='small mt-1'></div>").text('Sharpen ').append(unsharpRadiusVal), unsharpRadiusInput,
-            $("<div class='small mt-1'></div>").text('Amount ').append(unsharpStrengthVal), unsharpStrengthInput,
+            mkFxControl('Brightness', 'brightness', brVal, brInput, 0),
+            mkFxControl('Contrast', 'contrast', coVal, coInput, 0),
+            mkFxControl('Noise', 'noise', noiseVal, noiseInput, 0),
+            mkFxControl('Hue', 'hue', hueVal, hueInput, 0),
+            mkFxControl('Saturation', 'saturation', satVal, satInput, 0),
+            mkFxControl('Vibrance', 'vibrance', vibVal, vibInput, 0),
+            mkFxControl('Sharpen', 'unsharpRadius', unsharpRadiusVal, unsharpRadiusInput, 0),
+            mkFxControl('Amount', 'unsharpStrength', unsharpStrengthVal, unsharpStrengthInput, 2),
             resetFxBtn
         );
 

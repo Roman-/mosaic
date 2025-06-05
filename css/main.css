@@ -77,3 +77,21 @@ input.big-checkbox {
     width: 2em;
     height: 2em;
 }
+
+/* fx controls in Adjust Portrait layout */
+.fx-control {
+    display: flex;
+    align-items: center;
+}
+.fx-control .fx-val {
+    display: inline-block;
+    width: 3em;
+    text-align: right;
+}
+.fx-control .fx-label {
+    min-width: 5em;
+}
+.fx-control .fx-reset {
+    margin-left: 0.5em;
+    flex-shrink: 0;
+}
