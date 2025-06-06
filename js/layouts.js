@@ -46,6 +46,7 @@ function resetImageState() {
     Glob.fxCanvas = null;
     Glob.canvas = null;
     Glob.imageData = null;
+    Glob.downloadedSizes = new Set();
     Glob.imgEffects = {
         brightness:0,
         contrast:0,
@@ -86,6 +87,19 @@ function applyGlobImgEffects(cb = null) {
         $(Glob.img).one('load.fx', cb);
     Glob.img.src = dataUrl;
     return dataUrl;
+}
+
+// recolor quick resize buttons based on downloaded miniatures
+function updateCropPresetButtons() {
+    $(".cropPresetBtn").each(function () {
+        const w = $(this).data('w');
+        const h = $(this).data('h');
+        const key = `${w}x${h}`;
+        const downloaded = Glob.downloadedSizes.has(key);
+        $(this)
+            .toggleClass('btn-success', downloaded)
+            .toggleClass('btn-outline-secondary', !downloaded);
+    });
 }
 
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
@@ -239,9 +253,12 @@ function loAdjustPortrait(chooseOptions, opt) {
     function gcd(a,b){ return b?gcd(b,a%b):a; }
     function ratioStr(w,h){ let g=gcd(w,h); return (w/g)+":"+(h/g); }
     function cropPresetBtn(w,h){
-        return $("<button class='btn btn-outline-secondary btn-sm py-0 m-1 text-center'></button>")
+        const key = `${w}x${h}`;
+        let btn = $("<button class='btn btn-sm py-0 m-1 text-center cropPresetBtn'></button>")
             .css('width','6em')
+            .attr('data-w', w).attr('data-h', h)
             .html(`${w}x${h}<span class='small d-block lh-1'>${ratioStr(w,h)}</span><span class='small d-block lh-1'>${(w*h).toLocaleString()}</span>`)
+            .addClass(Glob.downloadedSizes.has(key) ? 'btn-success' : 'btn-outline-secondary')
             .click(()=>{
                 if (Glob.fullImg) Glob.img.src = Glob.fullImg.src;
                 Glob.initialCubeWidth = w;
@@ -251,6 +268,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                 const cb = () => loAdjustPortrait(Glob.lastChooseOptions, Glob.lastOpt);
                 doAfterLoadingSpinner(()=>loCropper(cb));
             });
+        return btn;
     }
     let row1 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
     [ [40,40], [30,30], [20,20], [10,10] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
@@ -570,6 +588,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         applyImgEffects();
     }
     plasticColorSelect.trigger('change');
+    updateCropPresetButtons();
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
     redrawMosaicWithUiRanges(true);
     redrawMosaicWithUiRanges(true);
@@ -914,10 +933,15 @@ function downloadGlobImageData() {
     link.attr('download', `miniature_${Glob.pixelWidth}x${Glob.pixelHeight}_px.png`);
     link.attr('href', imageDataToPngDataUrl(Glob.imageData));
     link.get(0).click();
+    const w = Glob.pixelWidth / Glob.cubeDimen;
+    const h = Glob.pixelHeight / Glob.cubeDimen;
+    Glob.downloadedSizes.add(`${w}x${h}`);
+    updateCropPresetButtons();
 }
 
 // for debugging purposes: call this function to imitate user uploading an image
 function fakeFileUpload(imageUrl = "data/test.jpg") {
+    Glob.downloadedSizes = new Set();
     Glob.cubeDimen = 3;
     Glob.pixelWidth = 25*Glob.cubeDimen;
     Glob.pixelHeight = 25*Glob.cubeDimen;
@@ -934,6 +958,7 @@ function fakeFileUpload(imageUrl = "data/test.jpg") {
 // uploaded image has been loaded completely - check if it's a miniature or a normal picture
 function onImageHasBeenLoaded(img, fileName) {
     //$(img).off('load'); Glob.img = img; - TODO this doesn't remove 'load' event
+    Glob.downloadedSizes = new Set();
     Glob.img = new Image();
     Glob.img.src = img.src;
     Glob.fullImg = new Image();

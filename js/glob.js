@@ -38,6 +38,7 @@ Glob.initialCubeDimen = 3; // 1 for pixart, 3 for 3x3 cubes
 Glob.initialCubeWidth = 20;
 Glob.initialCubeHeight = 30;
 Glob.maxCubesSize = 999; // it could be 1 pixel, remember?
+Glob.downloadedSizes = new Set(); // remember downloaded miniature sizes ("WxH")
 
 // PDF-specific
 Glob.blockWidthCubes = null;
