@@ -31,6 +31,28 @@ function resetImgEffects() {
         Glob.img.src = Glob.origImg.src;
 }
 
+// reset all image-related state when a new file is uploaded
+function resetImageState() {
+    if (Glob.cropper) {
+        Glob.cropper.destroy();
+    }
+    Glob.cropper = null;
+    Glob.origImg = null;
+    Glob.fxCanvas = null;
+    Glob.canvas = null;
+    Glob.imageData = null;
+    Glob.imgEffects = {
+        brightness:0,
+        contrast:0,
+        unsharpRadius:0,
+        unsharpStrength:2,
+        noise:0,
+        hue:0,
+        saturation:0,
+        vibrance:0
+    };
+}
+
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");

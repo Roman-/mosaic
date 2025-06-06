@@ -68,6 +68,7 @@ function jqDropZone(cfg) {
         if (file.type.indexOf("image/") !== 0)
             return dropLabel.html(file.name + ' is not an image');
 
+        resetImageState();
         showLoadingSpinner(); // TODO also replace with injected func
 
         let reader  = new FileReader();
