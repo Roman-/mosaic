@@ -488,7 +488,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         });
     let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("brush"), " Edit colors")
-        .click(()=>doAfterLoadingSpinner(loPalette));
+        .click(()=>{ resetImgEffects(); doAfterLoadingSpinner(loPalette)} );
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
         .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose); });
