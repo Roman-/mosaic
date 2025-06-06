@@ -75,6 +75,14 @@ function jqDropZone(cfg) {
             let img = new Image();
             img.src = reader.result;
             img.addEventListener('load', () => cfg.callback(img, file.name));
+            img.addEventListener('error', () => {
+                showNotification(file.name + ' cannot be loaded');
+                loDropImage();
+            });
+        }, false);
+        reader.addEventListener('error', function () {
+            showNotification('Failed to read ' + file.name);
+            loDropImage();
         }, false);
 
         reader.readAsDataURL(file);
