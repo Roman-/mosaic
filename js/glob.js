@@ -13,6 +13,8 @@ Glob.imageData = null; // ImageData object which we'll eventually make PDF split
 Glob.imgFileName = ""; // uploaded file name
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
 Glob.origImg=null; Glob.fxCanvas=null;
+Glob.fullImg = null;       // original uploaded image (not cropped)
+Glob.cropData = null;      // last cropper data for "crop again"
 Glob.imgEffects={
     brightness:0,
     contrast:0,

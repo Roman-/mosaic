@@ -38,6 +38,8 @@ function resetImageState() {
     }
     Glob.cropper = null;
     Glob.origImg = null;
+    Glob.fullImg = null;
+    Glob.cropData = null;
     Glob.fxCanvas = null;
     Glob.canvas = null;
     Glob.imageData = null;
@@ -187,13 +189,22 @@ function loAdjustPortrait(chooseOptions, opt) {
     Glob.canvas = $("<canvas>")
         .css('border', '1px solid black')
         .attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight) // <- pixelwise size
-        .addClass('col-6');
+        .addClass('col-6')
+        .css('cursor', 'pointer')
+        .click(downloadGlobImageData);
     let imgTag = $("<img/>")
         .attr('src', Glob.img.src)
         .css('vertical-align', 'inherit')
         .addClass('col-6');
     let editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("edit"), " edit pixel-by-pixel").click(editPpClicked);
+    let cropAgainBtn = $("<button class='btn btn-link pt-0'></button>")
+        .append(fa("cut"), " crop again").click(() => {
+            if (Glob.fullImg) {
+                Glob.img.src = Glob.fullImg.src;
+            }
+            doAfterLoadingSpinner(loCropper);
+        });
     let downloadPreviewBtn1 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (4k)")
         .click(() => downloadHighRes(4000));
@@ -202,7 +213,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .click(() => downloadHighRes(8000));
     let underMiniDiv =
         $("<div class='col-12'></div>")
-            .append(editPixelsBtn);
+            .append(editPixelsBtn, cropAgainBtn);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
@@ -435,7 +446,7 @@ function loAdjustPortrait(chooseOptions, opt) {
             .append(resetBtn);
     }
 
-    let fxControlsDiv = $("<div class='collapse card-body border mt-2' id='collapsedFx'></div>").append(
+    let fxControlsDiv = $("<div class='card-body border mt-2' id='collapsedFx'></div>").append(
             mkFxControl('Sharpen', 'unsharpRadius', unsharpRadiusVal, unsharpRadiusInput, 0),
             mkFxControl('Sharper', 'unsharpStrength', unsharpStrengthVal, unsharpStrengthInput, 2),
             mkFxControl('Brightness', 'brightness', brVal, brInput, 0),
@@ -447,8 +458,6 @@ function loAdjustPortrait(chooseOptions, opt) {
             resetFxBtn
         );
 
-    let fxCollapseBtn = $("<button class='btn btn-outline-secondary form-control mt-2' data-bs-toggle='collapse' data-bs-target='#collapsedFx'></button>")
-        .html('Effects <i class="fa fa-angle-down"></i>');
 
     let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
         $("<div/>").append(
@@ -518,7 +527,6 @@ function loAdjustPortrait(chooseOptions, opt) {
         newMosaicBtn,
         $("<hr>"),
         buildRangesDiv(),
-        fxCollapseBtn,
         fxControlsDiv,
         collapseBtn,
         collapsedDiv,
@@ -621,6 +629,7 @@ function loCropper() {
         }
 
         $(Glob.img).off('load').on('load', onImageCroppedLoaded); // TODO I think off('load') wouldn't work
+        Glob.cropData = Glob.cropper.getData(true);
         let dataUrl = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
         Glob.origImg = new Image();
         Glob.origImg.src = dataUrl;
@@ -696,6 +705,11 @@ function loCropper() {
         viewMode: 1, // restrict the crop box not to exceed the size of the canvas
         minCropBoxWidth: 25,
         minCropBoxHeight: 25,
+        ready() {
+            if (Glob.cropData) {
+                this.cropper.setData(Glob.cropData);
+            }
+        }
     });
 
     let littleHintText = $("<div></div>").html(Txt.littleHintUnder).addClass("text-secondary font-italic small");
@@ -858,7 +872,10 @@ function fakeFileUpload(imageUrl = "data/test.jpg") {
     Glob.plasticColor = 'red';
     Glob.img = new Image();
     Glob.img.crossOrigin = "Anonymous";
+    Glob.fullImg = new Image();
+    Glob.fullImg.crossOrigin = "Anonymous";
     Glob.img.addEventListener('load', () => doAfterLoadingSpinner(loChoose));
+    Glob.fullImg.src = imageUrl;
     Glob.img.src = imageUrl;
 }
 
@@ -867,6 +884,8 @@ function onImageHasBeenLoaded(img, fileName) {
     //$(img).off('load'); Glob.img = img; - TODO this doesn't remove 'load' event
     Glob.img = new Image();
     Glob.img.src = img.src;
+    Glob.fullImg = new Image();
+    Glob.fullImg.src = img.src;
     Glob.imgFileName = fileName;
     // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
     // with all sides devisible by 3
