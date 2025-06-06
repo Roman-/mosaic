@@ -239,9 +239,9 @@ function loAdjustPortrait(chooseOptions, opt) {
     function gcd(a,b){ return b?gcd(b,a%b):a; }
     function ratioStr(w,h){ let g=gcd(w,h); return (w/g)+":"+(h/g); }
     function cropPresetBtn(w,h){
-        return $("<button class='btn btn-outline-secondary btn-sm m-1 text-center'></button>")
+        return $("<button class='btn btn-outline-secondary btn-sm py-0 m-1 text-center'></button>")
             .css('width','6em')
-            .html(`${w}x${h}<br><small>${ratioStr(w,h)}</small><br><small>${(w*h).toLocaleString()}</small>`)
+            .html(`${w}x${h}<span class='small d-block lh-1'>${ratioStr(w,h)}</span><span class='small d-block lh-1'>${(w*h).toLocaleString()}</span>`)
             .click(()=>{
                 if (Glob.fullImg) Glob.img.src = Glob.fullImg.src;
                 Glob.initialCubeWidth = w;
@@ -253,8 +253,9 @@ function loAdjustPortrait(chooseOptions, opt) {
             });
     }
     let row1 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
-    [ [10,10], [20,20], [30,30], [40,40] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
+    [ [40,40], [30,30], [20,20], [10,10] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
     let portrait = [ [20,30], [20,40], [30,40], [40,50], [40,80], [50,80], [60,80] ];
+    portrait.sort((a,b)=>b[0]*b[1]-a[0]*a[1]);
     let row2 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
     portrait.forEach(p=>row2.append(cropPresetBtn(p[0],p[1])));
     let row3 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
@@ -572,7 +573,10 @@ function loAdjustPortrait(chooseOptions, opt) {
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
     redrawMosaicWithUiRanges(true);
     redrawMosaicWithUiRanges(true);
-    setTitle("Bulk test");
+    let aspect = ratioStr(Glob.initialCubeWidth, Glob.initialCubeHeight);
+    let size = `${Glob.initialCubeWidth}x${Glob.initialCubeHeight}`;
+    let cubes = (Glob.initialCubeWidth * Glob.initialCubeHeight).toLocaleString();
+    setTitle(`${aspect} ${size} (${cubes} cubes)`);
 }
 
 const populateDitheringClusters = (options, parameter) => {
