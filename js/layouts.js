@@ -243,15 +243,35 @@ function loAdjustPortrait(chooseOptions, opt) {
     let downloadPreviewBtn2 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (8k)")
         .click(() => downloadHighRes(8000));
-    let underMiniDiv = $("<div class='col-12'></div>") .append(cropAgainBtn);
+
+    function gcd(a,b){ return b?gcd(b,a%b):a; }
+    function ratioStr(w,h){ let g=gcd(w,h); return (w/g)+":"+(h/g); }
+    function cropPresetBtn(w,h){
+        return $("<button class='btn btn-outline-secondary btn-sm m-1 text-center'></button>")
+            .css('width','6em')
+            .html(`${w}x${h}<br><small>${ratioStr(w,h)}</small><br><small>${(w*h).toLocaleString()}</small>`)
+            .click(()=>{
+                if (Glob.fullImg) Glob.img.src = Glob.fullImg.src;
+                Glob.initialCubeWidth = w;
+                Glob.initialCubeHeight = h;
+                saveLocal('initialCubeWidth', w);
+                saveLocal('initialCubeHeight', h);
+                const cb = () => loAdjustPortrait(Glob.lastChooseOptions, Glob.lastOpt);
+                doAfterLoadingSpinner(()=>loCropper(cb));
+            });
+    }
+    let row1 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
+    [ [10,10], [20,20], [30,30], [40,40] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
+    let portrait = [ [20,30], [20,40], [30,40], [40,50], [40,80], [50,80], [60,80] ];
+    let row2 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
+    portrait.forEach(p=>row2.append(cropPresetBtn(p[0],p[1])));
+    let row3 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
+    portrait.forEach(p=>row3.append(cropPresetBtn(p[1],p[0])));
+    let cropPresetsDiv = $("<div class='mt-1'></div>").append(row1,row2,row3);
+    let underMiniDiv = $("<div class='col-12'></div>") .append(cropAgainBtn, cropPresetsDiv);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
-
-    function editPpClicked() {
-        downloadGlobImageData();
-        underUnderDiv.html(Txt.editPixelByPixel);
-    }
 
     function applyImgEffects() {
         let dataUrl = applyGlobImgEffects(redrawMosaicWithUiRanges);
