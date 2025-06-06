@@ -183,7 +183,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .click(() => downloadHighRes(8000));
     let underMiniDiv =
         $("<div class='col-12'></div>")
-            .append(editPixelsBtn, "<br>", downloadPreviewBtn1, "<br>", downloadPreviewBtn2);
+            .append(editPixelsBtn);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
@@ -391,11 +391,7 @@ function loAdjustPortrait(chooseOptions, opt) {
             applyImgEffects();
         });
 
-    let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'>").append(
-            $("<div>Preview plastic color:</div>"),
-            plasticColorSelect,
-            blurBtn,
-            "<hr>",
+    let collapsedDiv = $("<div class='collapse card-body border mt-2' id='collapsedOpts'>").append(
             $("<div>").html("PDF blocks size ("+(Glob.cubeDimen > 1 ? "cubes" : "pixels")+"):"),
             pdfBlocks,
             bottomTopLabel,
@@ -442,7 +438,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     ).css('display', 'none');
 
     let collapseBtn = $("<button class='btn btn-outline-secondary form-control' data-bs-toggle='collapse' data-bs-target='#collapsedOpts'></button>")
-        .html('More options <i class="fa fa-angle-down"></i>');
+        .html('PDF options <i class="fa fa-angle-down"></i>');
 
     let rightPanel = $("<div></div>").addClass('col-sm-4');
     let pdfBtnText = "<i class='fa fa-download'></i> Download PDF";
@@ -487,19 +483,32 @@ function loAdjustPortrait(chooseOptions, opt) {
             window.open('https://bestsiteever.net/algs_for_mosaic', '_blank');
         });
 
+    let previewCollapseDiv = $("<div class='collapse card-body border' id='collapsedPreview'></div>").append(
+            $("<div>Plastic color:</div>"),
+            plasticColorSelect,
+            blurBtn,
+            "<hr>",
+            downloadPreviewBtn1,
+            downloadPreviewBtn2,
+            getAlgsBtn
+        );
+    let previewCollapseBtn = $("<button class='btn btn-outline-secondary form-control mt-2' data-bs-toggle='collapse' data-bs-target='#collapsedPreview'></button>")
+        .html('Preview <i class="fa fa-angle-down"></i>');
+
 
     rightPanel.append(
         makePdfBtn,
-        getAlgsBtn,
         editColorsBtn,
         changeMethodBtn,
         newMosaicBtn,
         $("<hr>"),
         buildRangesDiv(),
-        collapseBtn,
-        collapsedDiv,
         fxCollapseBtn,
         fxControlsDiv,
+        collapseBtn,
+        collapsedDiv,
+        previewCollapseBtn,
+        previewCollapseDiv,
         promoDiv
     );
 
