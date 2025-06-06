@@ -59,7 +59,7 @@ let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning 
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");
 let changeMethodFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
-    .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose) })
+    .click(() => { doAfterLoadingSpinner(loChoose) })
     .append(fa("undo"), " Choose different method");
 
 // main layout with "drop image" thing
@@ -164,8 +164,6 @@ function loAdjustPortrait(chooseOptions, opt) {
         Glob.origImg = new Image();
         Glob.origImg.src = Glob.img.src;
     }
-    // reset image effects on entering the layout
-    resetImgEffects();
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
@@ -494,7 +492,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         });
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
-        .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose); });
+        .click(() => { doAfterLoadingSpinner(loChoose); });
     let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
