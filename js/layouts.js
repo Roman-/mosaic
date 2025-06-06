@@ -356,13 +356,13 @@ function loAdjustPortrait(chooseOptions, opt) {
                 .trigger('change')
             );
     let brVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.brightness);
-    let brInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
+    let brInput = $("<input type='range' min='-0.8' max='0.8' step='0.05' class='form-range'>")
         .val(Glob.imgEffects.brightness)
         .attr('title','brightness')
         .on('input', () => { Glob.imgEffects.brightness = parseFloat(brInput.val()); brVal.text(brInput.val()); applyImgEffects(); });
 
     let coVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.contrast);
-    let coInput = $("<input type='range' min='-1' max='1' step='0.05' class='form-range'>")
+    let coInput = $("<input type='range' min='-0.8' max='0.8' step='0.05' class='form-range'>")
         .val(Glob.imgEffects.contrast)
         .attr('title','contrast')
         .on('input', () => { Glob.imgEffects.contrast = parseFloat(coInput.val()); coVal.text(coInput.val()); applyImgEffects(); });
@@ -380,7 +380,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .on('input', () => { Glob.imgEffects.hue = parseFloat(hueInput.val()); hueVal.text(hueInput.val()); applyImgEffects(); });
 
     let satVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.saturation);
-    let satInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+    let satInput = $("<input type='range' min='0' max='0.9' step='0.01' class='form-range'>")
         .val(Glob.imgEffects.saturation)
         .attr('title','saturation')
         .on('input', () => { Glob.imgEffects.saturation = parseFloat(satInput.val()); satVal.text(satInput.val()); applyImgEffects(); });
@@ -400,7 +400,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let unsharpStrengthVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpStrength);
     let unsharpStrengthInput = $("<input type='range' min='0' max='5' step='0.1' class='form-range'>")
         .val(Glob.imgEffects.unsharpStrength)
-        .attr('title','amount')
+        .attr('title','sharper')
         .on('input', () => { Glob.imgEffects.unsharpStrength = parseFloat(unsharpStrengthInput.val()); unsharpStrengthVal.text(unsharpStrengthInput.val()); applyImgEffects(); });
     let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
         .text('Reset effects')
@@ -439,14 +439,14 @@ function loAdjustPortrait(chooseOptions, opt) {
     }
 
     let fxControlsDiv = $("<div class='collapse card-body border mt-2' id='collapsedFx'></div>").append(
+            mkFxControl('Sharpen', 'unsharpRadius', unsharpRadiusVal, unsharpRadiusInput, 0),
+            mkFxControl('Sharper', 'unsharpStrength', unsharpStrengthVal, unsharpStrengthInput, 2),
             mkFxControl('Brightness', 'brightness', brVal, brInput, 0),
             mkFxControl('Contrast', 'contrast', coVal, coInput, 0),
             mkFxControl('Noise', 'noise', noiseVal, noiseInput, 0),
-            mkFxControl('Hue', 'hue', hueVal, hueInput, 0),
             mkFxControl('Saturation', 'saturation', satVal, satInput, 0),
             mkFxControl('Vibrance', 'vibrance', vibVal, vibInput, 0),
-            mkFxControl('Sharpen', 'unsharpRadius', unsharpRadiusVal, unsharpRadiusInput, 0),
-            mkFxControl('Amount', 'unsharpStrength', unsharpStrengthVal, unsharpStrengthInput, 2),
+            mkFxControl('Hue', 'hue', hueVal, hueInput, 0),
             resetFxBtn
         );
 

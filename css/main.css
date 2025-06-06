@@ -90,6 +90,7 @@ input.big-checkbox {
 }
 .fx-control .fx-label {
     min-width: 5em;
+    padding-left: 0.25em;
 }
 .fx-control .fx-reset {
     margin-left: 0.5em;
