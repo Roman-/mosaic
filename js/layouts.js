@@ -229,14 +229,6 @@ function loAdjustPortrait(chooseOptions, opt) {
         .attr('src', Glob.img.src)
         .css('vertical-align', 'inherit')
         .addClass('col-6');
-    let cropAgainBtn = $("<button class='btn btn-link pt-0'></button>")
-        .append(fa("cut"), " crop again").click(() => {
-            if (Glob.fullImg) {
-                Glob.img.src = Glob.fullImg.src;
-            }
-            const cb = () => loAdjustPortrait(Glob.lastChooseOptions, Glob.lastOpt);
-            doAfterLoadingSpinner(() => loCropper(cb));
-        });
     let downloadPreviewBtn1 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (4k)")
         .click(() => downloadHighRes(4000));
@@ -268,7 +260,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let row3 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
     portrait.forEach(p=>row3.append(cropPresetBtn(p[1],p[0])));
     let cropPresetsDiv = $("<div class='mt-1'></div>").append(row1,row2,row3);
-    let underMiniDiv = $("<div class='col-12'></div>") .append(cropAgainBtn, cropPresetsDiv);
+    let underMiniDiv = $("<div class='col-12'></div>") .append(cropPresetsDiv);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
@@ -430,13 +422,13 @@ function loAdjustPortrait(chooseOptions, opt) {
         .on('input', () => { Glob.imgEffects.vibrance = parseFloat(vibInput.val()); vibVal.text(vibInput.val()); applyImgEffects(); });
 
     let unsharpRadiusVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpRadius);
-    let unsharpRadiusInput = $("<input type='range' min='0' max='20' step='0.1' class='form-range'>")
+    let unsharpRadiusInput = $("<input type='range' min='0' max='25' step='0.1' class='form-range'>")
         .val(Glob.imgEffects.unsharpRadius)
         .attr('title','sharpen')
         .on('input', () => { Glob.imgEffects.unsharpRadius = parseFloat(unsharpRadiusInput.val()); unsharpRadiusVal.text(unsharpRadiusInput.val()); applyImgEffects(); });
 
     let unsharpStrengthVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpStrength);
-    let unsharpStrengthInput = $("<input type='range' min='0' max='5' step='0.1' class='form-range'>")
+    let unsharpStrengthInput = $("<input type='range' min='0' max='8' step='0.1' class='form-range'>")
         .val(Glob.imgEffects.unsharpStrength)
         .attr('title','sharper')
         .on('input', () => { Glob.imgEffects.unsharpStrength = parseFloat(unsharpStrengthInput.val()); unsharpStrengthVal.text(unsharpStrengthInput.val()); applyImgEffects(); });
