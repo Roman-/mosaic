@@ -486,9 +486,6 @@ function loAdjustPortrait(chooseOptions, opt) {
                 setTimeout(() => promoDiv.css('display', 'block'), 300)
             }, 50);
         });
-    let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
-        .append(fa("brush"), " Edit colors")
-        .click(()=>{ resetImgEffects(); doAfterLoadingSpinner(loPalette)} );
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
         .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose); });
@@ -549,9 +546,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
     redrawMosaicWithUiRanges(true);
     redrawMosaicWithUiRanges(true);
-    let totalCubes = Glob.pixelWidth * Glob.pixelHeight / (Glob.cubeDimen * Glob.cubeDimen);
-    let artForm = Glob.cubeDimen === 1 ? "px artwork" : "cubes mosaic";
-    setTitle(`Your ${totalCubes} ${artForm} <i class="fa fa-cubes"></i>`);
+    setTitle("Bulk test");
 }
 
 const populateDitheringClusters = (options, parameter) => {
