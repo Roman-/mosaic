@@ -55,6 +55,36 @@ function resetImageState() {
     };
 }
 
+// apply Glob.imgEffects to Glob.origImg and update Glob.img
+// if cb is provided, it's called after the new image is loaded
+function applyGlobImgEffects(cb = null) {
+    if (!Glob.origImg) return null;
+    if (!Glob.fxCanvas) {
+        try { Glob.fxCanvas = fx.canvas(); }
+        catch (e) { console.error(e); return null; }
+    }
+    let texture = Glob.fxCanvas.texture(Glob.origImg);
+    Glob.fxCanvas.draw(texture);
+    if (Glob.imgEffects.noise > 0)
+        Glob.fxCanvas.noise(Glob.imgEffects.noise);
+    if (Glob.imgEffects.hue !== 0 || Glob.imgEffects.saturation !== 0)
+        Glob.fxCanvas.hueSaturation(Glob.imgEffects.hue, Glob.imgEffects.saturation);
+    if (Glob.imgEffects.vibrance !== 0)
+        Glob.fxCanvas.vibrance(Glob.imgEffects.vibrance);
+    if (Glob.imgEffects.brightness !== 0 || Glob.imgEffects.contrast !== 0)
+        Glob.fxCanvas.brightnessContrast(Glob.imgEffects.brightness, Glob.imgEffects.contrast);
+    if (Glob.imgEffects.unsharpRadius > 0)
+        Glob.fxCanvas.unsharpMask(Glob.imgEffects.unsharpRadius, Glob.imgEffects.unsharpStrength);
+    Glob.fxCanvas.update();
+
+    let dataUrl = Glob.fxCanvas.toDataURL();
+    $(Glob.img).off('load.fx');
+    if (cb)
+        $(Glob.img).one('load.fx', cb);
+    Glob.img.src = dataUrl;
+    return dataUrl;
+}
+
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");
@@ -222,29 +252,9 @@ function loAdjustPortrait(chooseOptions, opt) {
     }
 
     function applyImgEffects() {
-        if (!Glob.origImg) return;
-        if (!Glob.fxCanvas) {
-            try { Glob.fxCanvas = fx.canvas(); }
-            catch (e) { console.error(e); return; }
-        }
-        let texture = Glob.fxCanvas.texture(Glob.origImg);
-        Glob.fxCanvas.draw(texture);
-        if (Glob.imgEffects.noise > 0)
-            Glob.fxCanvas.noise(Glob.imgEffects.noise);
-        if (Glob.imgEffects.hue !== 0 || Glob.imgEffects.saturation !== 0)
-            Glob.fxCanvas.hueSaturation(Glob.imgEffects.hue, Glob.imgEffects.saturation);
-        if (Glob.imgEffects.vibrance !== 0)
-            Glob.fxCanvas.vibrance(Glob.imgEffects.vibrance);
-        if (Glob.imgEffects.brightness !== 0 || Glob.imgEffects.contrast !== 0)
-            Glob.fxCanvas.brightnessContrast(Glob.imgEffects.brightness, Glob.imgEffects.contrast);
-        if (Glob.imgEffects.unsharpRadius > 0)
-            Glob.fxCanvas.unsharpMask(Glob.imgEffects.unsharpRadius, Glob.imgEffects.unsharpStrength);
-        Glob.fxCanvas.update();
-
-        let dataUrl = Glob.fxCanvas.toDataURL();
-        $(Glob.img).off('load.fx').one('load.fx', redrawMosaicWithUiRanges);
-        Glob.img.src = dataUrl;
-        imgTag.attr('src', dataUrl);
+        let dataUrl = applyGlobImgEffects(redrawMosaicWithUiRanges);
+        if (dataUrl)
+            imgTag.attr('src', dataUrl);
     }
 
     // @returns div with image adjustments spinners
@@ -620,10 +630,15 @@ function loCropper() {
             Glob.initialCubeHeight = h;
             Glob.initialCubeDimen = Glob.cubeDimen;
             saveLocal('initialCubeWidth', w);
-            saveLocal('initialCubeHeight', h);
-            saveLocal('initialCubeDimen', Glob.cubeDimen);
+           saveLocal('initialCubeHeight', h);
+           saveLocal('initialCubeDimen', Glob.cubeDimen);
 
-            loChoose();
+            const chooseAfterEffects = () => applyGlobImgEffects(loChoose);
+            if (Glob.origImg.complete) {
+                chooseAfterEffects();
+            } else {
+                $(Glob.origImg).one('load', chooseAfterEffects);
+            }
         }
 
         $(Glob.img).off('load').on('load', onImageCroppedLoaded); // TODO I think off('load') wouldn't work
