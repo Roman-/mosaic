@@ -16,6 +16,13 @@ function showBsModal(content, title = 'Info', fullscreen = false, id='newBsModal
     return div;
 }
 
+// show a small notification that fades away automatically
+function showNotification(text, duration = 3000) {
+    let div = $("<div class='notification'></div>").text(text).appendTo('body');
+    setTimeout(() => div.fadeOut(400, () => div.remove()), duration);
+    return div;
+}
+
 let jqCol = (content, auto = true) => {return $("<div>").addClass(auto ? "col-auto" : "col").append(content);};
 
 function exit( status ) {

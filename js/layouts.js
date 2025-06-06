@@ -14,6 +14,45 @@ function doAfterLoadingSpinner(callback) {
     setTimeout(callback, 10);
 }
 
+// resets image effects and restores the original image
+function resetImgEffects() {
+    Glob.imgEffects = {
+        brightness:0,
+        contrast:0,
+        unsharpRadius:0,
+        unsharpStrength:2,
+        noise:0,
+        hue:0,
+        saturation:0,
+        vibrance:0
+    };
+    Glob.fxCanvas = null;
+    if (Glob.origImg)
+        Glob.img.src = Glob.origImg.src;
+}
+
+// reset all image-related state when a new file is uploaded
+function resetImageState() {
+    if (Glob.cropper) {
+        Glob.cropper.destroy();
+    }
+    Glob.cropper = null;
+    Glob.origImg = null;
+    Glob.fxCanvas = null;
+    Glob.canvas = null;
+    Glob.imageData = null;
+    Glob.imgEffects = {
+        brightness:0,
+        contrast:0,
+        unsharpRadius:0,
+        unsharpStrength:2,
+        noise:0,
+        hue:0,
+        saturation:0,
+        vibrance:0
+    };
+}
+
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");
@@ -21,7 +60,7 @@ let editColorsFooterBtn = () => $("<button class='btn btn-outline-primary m-1'><
     .append(fa("brush"), " Customize colors")
     .click(()=>doAfterLoadingSpinner(loPalette));
 let changeMethodFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
-    .click(() => doAfterLoadingSpinner(loChoose))
+    .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose) })
     .append(fa("undo"), " Choose different method");
 
 // main layout with "drop image" thing
@@ -45,11 +84,12 @@ function loDropImage() {
     let tutorialWrap = $("#videoTutorialWrap");
 
     tutorialWrap.empty().append(
-        $("<iframe>")
-            .css("width", "70vw")
-            .css("height", "40vw")
-            .css("max-width", "1920px")
-            .css("max-height", "1080px")
+        $("<div>")
+            .addClass("ratio ratio-16x9")
+            .append(
+                $("<iframe>")
+                    .addClass("w-100 h-100 border-0")
+            )
     )
 
     if (Glob.debugModeOn) {
@@ -58,15 +98,16 @@ function loDropImage() {
     }
     setTimeout(() => {
         tutorialWrap.empty().append(
-            $("<iframe>")
-            .css("width", "70vw")
-            .css("height", "40vw")
-            .css("max-width", "1920px")
-            .css("max-height", "1080px")
-            .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
-            .attr("title", "YouTube video player")
-            .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
-            .prop("autofullscreen", true)
+            $("<div>")
+                .addClass("ratio ratio-16x9")
+                .append(
+                    $("<iframe>")
+                        .addClass("w-100 h-100 border-0")
+                        .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
+                        .attr("title", "YouTube video player")
+                        .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
+                        .prop("allowfullscreen", true)
+                )
         )
         window.scrollTo(0, 0);
     }, 1)
@@ -120,6 +161,12 @@ function downloadHighRes(heightPx) {
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
 function loAdjustPortrait(chooseOptions, opt) {
+    if (!Glob.origImg) {
+        Glob.origImg = new Image();
+        Glob.origImg.src = Glob.img.src;
+    }
+    // reset image effects on entering the layout
+    resetImgEffects();
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
@@ -158,7 +205,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         .click(() => downloadHighRes(8000));
     let underMiniDiv =
         $("<div class='col-12'></div>")
-            .append(editPixelsBtn, "<br>", downloadPreviewBtn1, "<br>", downloadPreviewBtn2);
+            .append(editPixelsBtn);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
@@ -166,6 +213,32 @@ function loAdjustPortrait(chooseOptions, opt) {
     function editPpClicked() {
         downloadGlobImageData();
         underUnderDiv.html(Txt.editPixelByPixel);
+    }
+
+    function applyImgEffects() {
+        if (!Glob.origImg) return;
+        if (!Glob.fxCanvas) {
+            try { Glob.fxCanvas = fx.canvas(); }
+            catch (e) { console.error(e); return; }
+        }
+        let texture = Glob.fxCanvas.texture(Glob.origImg);
+        Glob.fxCanvas.draw(texture);
+        if (Glob.imgEffects.noise > 0)
+            Glob.fxCanvas.noise(Glob.imgEffects.noise);
+        if (Glob.imgEffects.hue !== 0 || Glob.imgEffects.saturation !== 0)
+            Glob.fxCanvas.hueSaturation(Glob.imgEffects.hue, Glob.imgEffects.saturation);
+        if (Glob.imgEffects.vibrance !== 0)
+            Glob.fxCanvas.vibrance(Glob.imgEffects.vibrance);
+        if (Glob.imgEffects.brightness !== 0 || Glob.imgEffects.contrast !== 0)
+            Glob.fxCanvas.brightnessContrast(Glob.imgEffects.brightness, Glob.imgEffects.contrast);
+        if (Glob.imgEffects.unsharpRadius > 0)
+            Glob.fxCanvas.unsharpMask(Glob.imgEffects.unsharpRadius, Glob.imgEffects.unsharpStrength);
+        Glob.fxCanvas.update();
+
+        let dataUrl = Glob.fxCanvas.toDataURL();
+        $(Glob.img).off('load.fx').one('load.fx', redrawMosaicWithUiRanges);
+        Glob.img.src = dataUrl;
+        imgTag.attr('src', dataUrl);
     }
 
     // @returns div with image adjustments spinners
@@ -282,17 +355,103 @@ function loAdjustPortrait(chooseOptions, opt) {
                 })
                 .trigger('change')
             );
-    let collapsedDiv = $("<div class='collapse card-body border' id='collapsedOpts'>").append(
-            $("<div>Preview plastic color:</div>"),
-            plasticColorSelect,
-            blurBtn,
-            "<hr>",
+    let brVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.brightness);
+    let brInput = $("<input type='range' min='-0.8' max='0.8' step='0.05' class='form-range'>")
+        .val(Glob.imgEffects.brightness)
+        .attr('title','brightness')
+        .on('input', () => { Glob.imgEffects.brightness = parseFloat(brInput.val()); brVal.text(brInput.val()); applyImgEffects(); });
+
+    let coVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.contrast);
+    let coInput = $("<input type='range' min='-0.8' max='0.8' step='0.05' class='form-range'>")
+        .val(Glob.imgEffects.contrast)
+        .attr('title','contrast')
+        .on('input', () => { Glob.imgEffects.contrast = parseFloat(coInput.val()); coVal.text(coInput.val()); applyImgEffects(); });
+
+    let noiseVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.noise);
+    let noiseInput = $("<input type='range' min='0' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.noise)
+        .attr('title','noise')
+        .on('input', () => { Glob.imgEffects.noise = parseFloat(noiseInput.val()); noiseVal.text(noiseInput.val()); applyImgEffects(); });
+
+    let hueVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.hue);
+    let hueInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.hue)
+        .attr('title','hue')
+        .on('input', () => { Glob.imgEffects.hue = parseFloat(hueInput.val()); hueVal.text(hueInput.val()); applyImgEffects(); });
+
+    let satVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.saturation);
+    let satInput = $("<input type='range' min='0' max='0.9' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.saturation)
+        .attr('title','saturation')
+        .on('input', () => { Glob.imgEffects.saturation = parseFloat(satInput.val()); satVal.text(satInput.val()); applyImgEffects(); });
+
+    let vibVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.vibrance);
+    let vibInput = $("<input type='range' min='-1' max='1' step='0.01' class='form-range'>")
+        .val(Glob.imgEffects.vibrance)
+        .attr('title','vibrance')
+        .on('input', () => { Glob.imgEffects.vibrance = parseFloat(vibInput.val()); vibVal.text(vibInput.val()); applyImgEffects(); });
+
+    let unsharpRadiusVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpRadius);
+    let unsharpRadiusInput = $("<input type='range' min='0' max='20' step='0.1' class='form-range'>")
+        .val(Glob.imgEffects.unsharpRadius)
+        .attr('title','sharpen')
+        .on('input', () => { Glob.imgEffects.unsharpRadius = parseFloat(unsharpRadiusInput.val()); unsharpRadiusVal.text(unsharpRadiusInput.val()); applyImgEffects(); });
+
+    let unsharpStrengthVal = $("<span class='ms-1'></span>").text(Glob.imgEffects.unsharpStrength);
+    let unsharpStrengthInput = $("<input type='range' min='0' max='5' step='0.1' class='form-range'>")
+        .val(Glob.imgEffects.unsharpStrength)
+        .attr('title','sharper')
+        .on('input', () => { Glob.imgEffects.unsharpStrength = parseFloat(unsharpStrengthInput.val()); unsharpStrengthVal.text(unsharpStrengthInput.val()); applyImgEffects(); });
+    let resetFxBtn = $("<button class='btn btn-secondary form-control my-1'></button>")
+        .text('Reset effects')
+        .click(() => {
+            resetImgEffects();
+            brInput.val(0); coInput.val(0); unsharpRadiusInput.val(0); unsharpStrengthInput.val(2);
+            noiseInput.val(0); hueInput.val(0); satInput.val(0); vibInput.val(0);
+            brVal.text(0); coVal.text(0); unsharpRadiusVal.text(0); unsharpStrengthVal.text(2);
+            noiseVal.text(0); hueVal.text(0); satVal.text(0); vibVal.text(0);
+            applyImgEffects();
+        });
+
+    let collapsedDiv = $("<div class='collapse card-body border mt-2' id='collapsedOpts'>").append(
             $("<div>").html("PDF blocks size ("+(Glob.cubeDimen > 1 ? "cubes" : "pixels")+"):"),
             pdfBlocks,
             bottomTopLabel,
             drawLettersLabel,
             dontUseColorLabel,
         );
+
+    function mkFxControl(name, key, valSpan, input, defVal) {
+        let resetBtn = $("<button type='button' class='btn btn-sm btn-outline-secondary fx-reset'></button>")
+            .append(fa("undo"))
+            .attr('title', 'reset')
+            .click(() => {
+                Glob.imgEffects[key] = defVal;
+                input.val(defVal);
+                valSpan.text(defVal);
+                applyImgEffects();
+            });
+        return $("<div class='fx-control small mt-1'></div>")
+            .append($("<span class='fx-label'></span>").text(name).attr('title', name))
+            .append(valSpan.addClass('fx-val ms-1'))
+            .append(input.addClass('flex-grow-1 ms-1'))
+            .append(resetBtn);
+    }
+
+    let fxControlsDiv = $("<div class='collapse card-body border mt-2' id='collapsedFx'></div>").append(
+            mkFxControl('Sharpen', 'unsharpRadius', unsharpRadiusVal, unsharpRadiusInput, 0),
+            mkFxControl('Sharper', 'unsharpStrength', unsharpStrengthVal, unsharpStrengthInput, 2),
+            mkFxControl('Brightness', 'brightness', brVal, brInput, 0),
+            mkFxControl('Contrast', 'contrast', coVal, coInput, 0),
+            mkFxControl('Noise', 'noise', noiseVal, noiseInput, 0),
+            mkFxControl('Saturation', 'saturation', satVal, satInput, 0),
+            mkFxControl('Vibrance', 'vibrance', vibVal, vibInput, 0),
+            mkFxControl('Hue', 'hue', hueVal, hueInput, 0),
+            resetFxBtn
+        );
+
+    let fxCollapseBtn = $("<button class='btn btn-outline-secondary form-control mt-2' data-bs-toggle='collapse' data-bs-target='#collapsedFx'></button>")
+        .html('Effects <i class="fa fa-angle-down"></i>');
 
     let promoDiv = $("<div class='alert alert-secondary mt-2' role='alert'>").append(
         $("<div/>").append(
@@ -301,7 +460,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     ).css('display', 'none');
 
     let collapseBtn = $("<button class='btn btn-outline-secondary form-control' data-bs-toggle='collapse' data-bs-target='#collapsedOpts'></button>")
-        .html('More options <i class="fa fa-angle-down"></i>');
+        .html('PDF options <i class="fa fa-angle-down"></i>');
 
     let rightPanel = $("<div></div>").addClass('col-sm-4');
     let pdfBtnText = "<i class='fa fa-download'></i> Download PDF";
@@ -329,10 +488,10 @@ function loAdjustPortrait(chooseOptions, opt) {
         });
     let editColorsBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("brush"), " Edit colors")
-        .click(()=>doAfterLoadingSpinner(loPalette));
+        .click(()=>{ resetImgEffects(); doAfterLoadingSpinner(loPalette)} );
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
-        .click(() => doAfterLoadingSpinner(loChoose));
+        .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose); });
     let newMosaicBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("plus"), " New mosaic")
         .click(loDropImage);
@@ -346,17 +505,32 @@ function loAdjustPortrait(chooseOptions, opt) {
             window.open('https://bestsiteever.net/algs_for_mosaic', '_blank');
         });
 
+    let previewCollapseDiv = $("<div class='collapse card-body border' id='collapsedPreview'></div>").append(
+            $("<div>Plastic color:</div>"),
+            plasticColorSelect,
+            blurBtn,
+            "<hr>",
+            downloadPreviewBtn1,
+            downloadPreviewBtn2,
+            getAlgsBtn
+        );
+    let previewCollapseBtn = $("<button class='btn btn-outline-secondary form-control mt-2' data-bs-toggle='collapse' data-bs-target='#collapsedPreview'></button>")
+        .html('Preview <i class="fa fa-angle-down"></i>');
+
 
     rightPanel.append(
         makePdfBtn,
-        getAlgsBtn,
         editColorsBtn,
         changeMethodBtn,
         newMosaicBtn,
         $("<hr>"),
         buildRangesDiv(),
+        fxCollapseBtn,
+        fxControlsDiv,
         collapseBtn,
         collapsedDiv,
+        previewCollapseBtn,
+        previewCollapseDiv,
         promoDiv
     );
 
@@ -366,6 +540,11 @@ function loAdjustPortrait(chooseOptions, opt) {
     $("#mainLayout").html(div);
 
     $("input[type='number']").inputSpinner();
+    if (!Glob.origImg || !Glob.origImg.complete) {
+        $(Glob.origImg).one('load.fxinit', applyImgEffects);
+    } else {
+        applyImgEffects();
+    }
     plasticColorSelect.trigger('change');
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
     redrawMosaicWithUiRanges(true);
@@ -433,6 +612,7 @@ function loCropper() {
     function onCropImage() {
         setTitle('Working...');
         function onImageCroppedLoaded() {
+            $(Glob.img).off('load');
             let w = widthInput.val();
             let h = heightInput.val();
             Glob.cropper.destroy();
@@ -451,7 +631,10 @@ function loCropper() {
         }
 
         $(Glob.img).off('load').on('load', onImageCroppedLoaded); // TODO I think off('load') wouldn't work
-        Glob.img.src = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
+        let dataUrl = Glob.cropper.getCroppedCanvas({fillColor: '#fff'}).toDataURL();
+        Glob.origImg = new Image();
+        Glob.origImg.src = dataUrl;
+        Glob.img.src = dataUrl;
     }
     let cubeDimenSelect = $("<select id='cubeDimen' class='form-select'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {

@@ -68,6 +68,7 @@ function jqDropZone(cfg) {
         if (file.type.indexOf("image/") !== 0)
             return dropLabel.html(file.name + ' is not an image');
 
+        resetImageState();
         showLoadingSpinner(); // TODO also replace with injected func
 
         let reader  = new FileReader();
@@ -75,6 +76,14 @@ function jqDropZone(cfg) {
             let img = new Image();
             img.src = reader.result;
             img.addEventListener('load', () => cfg.callback(img, file.name));
+            img.addEventListener('error', () => {
+                showNotification(file.name + ' cannot be loaded');
+                loDropImage();
+            });
+        }, false);
+        reader.addEventListener('error', function () {
+            showNotification('Failed to read ' + file.name);
+            loDropImage();
         }, false);
 
         reader.readAsDataURL(file);
