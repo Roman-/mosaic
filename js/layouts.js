@@ -62,11 +62,12 @@ function loDropImage() {
     let tutorialWrap = $("#videoTutorialWrap");
 
     tutorialWrap.empty().append(
-        $("<iframe>")
-            .css("width", "70vw")
-            .css("height", "40vw")
-            .css("max-width", "1920px")
-            .css("max-height", "1080px")
+        $("<div>")
+            .addClass("ratio ratio-16x9")
+            .append(
+                $("<iframe>")
+                    .addClass("w-100 h-100 border-0")
+            )
     )
 
     if (Glob.debugModeOn) {
@@ -75,15 +76,16 @@ function loDropImage() {
     }
     setTimeout(() => {
         tutorialWrap.empty().append(
-            $("<iframe>")
-            .css("width", "70vw")
-            .css("height", "40vw")
-            .css("max-width", "1920px")
-            .css("max-height", "1080px")
-            .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
-            .attr("title", "YouTube video player")
-            .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
-            .prop("autofullscreen", true)
+            $("<div>")
+                .addClass("ratio ratio-16x9")
+                .append(
+                    $("<iframe>")
+                        .addClass("w-100 h-100 border-0")
+                        .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
+                        .attr("title", "YouTube video player")
+                        .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
+                        .prop("allowfullscreen", true)
+                )
         )
         window.scrollTo(0, 0);
     }, 1)
