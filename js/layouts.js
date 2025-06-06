@@ -96,9 +96,11 @@ function updateCropPresetButtons() {
         const h = $(this).data('h');
         const key = `${w}x${h}`;
         const downloaded = Glob.downloadedSizes.has(key);
+        const isCurrent = w === Glob.initialCubeWidth && h === Glob.initialCubeHeight;
         $(this)
             .toggleClass('btn-success', downloaded)
-            .toggleClass('btn-outline-secondary', !downloaded);
+            .toggleClass('btn-outline-secondary', !downloaded && !isCurrent)
+            .toggleClass('btn-outline-primary', isCurrent);
     });
 }
 
@@ -114,8 +116,8 @@ function loDropImage() {
     if (Glob.cropper)
         Glob.cropper.destroy()
 
-    let h1 = $("<h1></h1>").html("Welcome to Bestsiteever Mosaic!");
-    let subtitle = $("<h4></h4>").html("Free Rubik's cube mosaic builder optimized for portraits");
+    let h1 = $("<h1></h1>").html("Bulk test");
+    let subtitle = $("<h4></h4>").html("---");
 
     let dropZoneConfig = {
         callback: onImageHasBeenLoaded,
@@ -127,36 +129,6 @@ function loDropImage() {
     let div = $("<div class='container'></div>").append(h1, subtitle, dropZone, aboutText());
     $("#mainLayout").html(div);
     setTitle('<span class="text-secondary">Bestsiteever Mosaic</span>');
-    let tutorialWrap = $("#videoTutorialWrap");
-
-    tutorialWrap.empty().append(
-        $("<div>")
-            .addClass("ratio ratio-16x9")
-            .append(
-                $("<iframe>")
-                    .addClass("w-100 h-100 border-0")
-            )
-    )
-
-    if (Glob.debugModeOn) {
-        tutorialWrap.empty().append("<h3>--- DEBUG MODE ON ---</h3>");
-        return;
-    }
-    setTimeout(() => {
-        tutorialWrap.empty().append(
-            $("<div>")
-                .addClass("ratio ratio-16x9")
-                .append(
-                    $("<iframe>")
-                        .addClass("w-100 h-100 border-0")
-                        .attr("src", "https://www.youtube.com/embed/uE54HH__H4g")
-                        .attr("title", "YouTube video player")
-                        .attr("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture")
-                        .prop("allowfullscreen", true)
-                )
-        )
-        window.scrollTo(0, 0);
-    }, 1)
 }
 
 function downloadHighRes(heightPx) {
@@ -263,8 +235,6 @@ function loAdjustPortrait(chooseOptions, opt) {
                 if (Glob.fullImg) Glob.img.src = Glob.fullImg.src;
                 Glob.initialCubeWidth = w;
                 Glob.initialCubeHeight = h;
-                saveLocal('initialCubeWidth', w);
-                saveLocal('initialCubeHeight', h);
                 const cb = () => loAdjustPortrait(Glob.lastChooseOptions, Glob.lastOpt);
                 doAfterLoadingSpinner(()=>loCropper(cb));
             });
@@ -510,29 +480,6 @@ function loAdjustPortrait(chooseOptions, opt) {
         .html('PDF options <i class="fa fa-angle-down"></i>');
 
     let rightPanel = $("<div></div>").addClass('col-sm-4');
-    let pdfBtnText = "<i class='fa fa-download'></i> Download PDF";
-    let makePdfBtn = $("<button class='btn btn-success form-control my-1'></button>")
-        .css('height', '3.5em')
-        .html(pdfBtnText)
-        .click(() => {
-            makePdfBtn.html("<i class='fas fa-cog fa-spin'></i> working...").prop("disabled", true);
-            redrawMosaicWithUiRanges(); // in case we've blurred canvas or something
-            setTimeout(() => {
-                generatePdf();
-                makePdfBtn.html(pdfBtnText);
-                setTitle('Your PDF is ready <i class="fa fa-rocket"></i>');
-                underUnderDiv.empty();
-                setTimeout(()=>{makePdfBtn.prop("disabled", false)}, 500);
-
-                // save preferred parameters
-                saveLocal('bottomToTop', Glob.bottomToTop);
-                saveLocal('pdfDrawLetters', Glob.pdfDrawLetters);
-                saveLocal('pdfBwPrinter', Glob.pdfBwPrinter);
-                saveLocal('blockWidthCubes', Glob.blockWidthCubes);
-                saveLocal('blockHeightCubes', Glob.blockHeightCubes);
-                setTimeout(() => promoDiv.css('display', 'block'), 300)
-            }, 50);
-        });
     let changeMethodBtn = $("<button class='btn btn-outline-primary form-control my-1'></button>")
         .append(fa("undo"), " Change method")
         .click(() => { doAfterLoadingSpinner(loChoose); });
@@ -563,7 +510,6 @@ function loAdjustPortrait(chooseOptions, opt) {
 
 
     rightPanel.append(
-        makePdfBtn,
         changeMethodBtn,
         newMosaicBtn,
         $("<hr>"),
@@ -656,19 +602,16 @@ function loCropper(afterCropCb = loChoose) {
         setTitle('Working...');
         function onImageCroppedLoaded() {
             $(Glob.img).off('load');
-            let w = widthInput.val();
-            let h = heightInput.val();
+            let w = parseInt(widthInput.val(), 10);
+            let h = parseInt(heightInput.val(), 10);
             Glob.cropper.destroy();
-            Glob.cubeDimen = parseInt(cubeDimenSelect.val());
+            Glob.cubeDimen = 3; // hardcoded
             Glob.pixelWidth = w * Glob.cubeDimen;
             Glob.pixelHeight = h * Glob.cubeDimen;
 
             Glob.initialCubeWidth = w;
             Glob.initialCubeHeight = h;
             Glob.initialCubeDimen = Glob.cubeDimen;
-            saveLocal('initialCubeWidth', w);
-           saveLocal('initialCubeHeight', h);
-           saveLocal('initialCubeDimen', Glob.cubeDimen);
 
             const chooseAfterEffects = () => applyGlobImgEffects(callback);
             if (Glob.origImg.complete) {
@@ -686,12 +629,6 @@ function loCropper(afterCropCb = loChoose) {
         Glob.img.src = dataUrl;
         Glob.hasCroppedOnce = true;
     }
-    let cubeDimenSelect = $("<select id='cubeDimen' class='form-select'></select>");
-    [1,2,3,4,5,6,7].forEach(function (d) {
-        let sizeHtml = (d === 1) ? "1 pixel" : d+'x'+d+'x'+d;
-        cubeDimenSelect.append($("<option></option>").val(d).html(sizeHtml));
-    });
-    cubeDimenSelect.val(Glob.initialCubeDimen);
 
     let imgTag = $("<img>")
         .attr('src', Glob.img.src)
@@ -705,8 +642,8 @@ function loCropper(afterCropCb = loChoose) {
     }
 
     function changeAspectRadio() {
-        let w = widthInput.val();
-        let h = heightInput.val();
+        let w = parseInt(widthInput.val(), 10);
+        let h = parseInt(heightInput.val(), 10);
         if (whWithinBoundaries(w,h)) {
             equalSpan.html(w*h);
             Glob.cropper.setAspectRatio(w/h);
@@ -722,9 +659,9 @@ function loCropper(afterCropCb = loChoose) {
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeHeight).on('input', changeAspectRadio);
     let equalSpan = $("<span>").css('font-weight', 'bold');
     function validateSize() {
-        if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
+        if (parseInt(widthInput.val(), 10) < 1 || parseInt(widthInput.val(), 10) > Glob.maxCubesSize)
             return widthInput.focus(), false;
-        if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
+        if (parseInt(heightInput.val(), 10) < 1 || parseInt(heightInput.val(), 10) > Glob.maxCubesSize)
             return heightInput.focus(), false;
         return true;
     }
@@ -762,7 +699,6 @@ function loCropper(afterCropCb = loChoose) {
             $("<div>").addClass("col-auto").html("="),
             $("<div>").addClass("col-auto").append(equalSpan),
             $("<div>").addClass("col-auto").html("cubes"),
-            $("<div>").addClass("col-auto").append(cubeDimenSelect),
             $("<div>").addClass("col ps-1").append(afterCropCb === loChoose ? nextBtn : $("<div></div>").append(startOverBtn, updateBtn)),
     )).addClass("my-2");
 
@@ -959,6 +895,10 @@ function fakeFileUpload(imageUrl = "data/test.jpg") {
 function onImageHasBeenLoaded(img, fileName) {
     //$(img).off('load'); Glob.img = img; - TODO this doesn't remove 'load' event
     Glob.downloadedSizes = new Set();
+    Glob.initialCubeWidth = 40;
+    Glob.initialCubeHeight = 40;
+    Glob.initialCubeDimen = 3;
+    Glob.cubeDimen = 3;
     Glob.img = new Image();
     Glob.img.src = img.src;
     Glob.fullImg = new Image();
