@@ -56,9 +56,6 @@ function resetImageState() {
 let uploadOtherImageFooterBtn = () => $("<button class='btn btn-outline-warning m-1'></button>")
     .click(loDropImage)
     .append(fa("plus"), " Upload other image");
-let editColorsFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
-    .append(fa("brush"), " Customize colors")
-    .click(()=>doAfterLoadingSpinner(loPalette));
 let changeMethodFooterBtn = () => $("<button class='btn btn-outline-primary m-1'></button>")
     .click(() => { resetImgEffects(); doAfterLoadingSpinner(loChoose) })
     .append(fa("undo"), " Choose different method");
@@ -517,7 +514,6 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     rightPanel.append(
         makePdfBtn,
-        editColorsBtn,
         changeMethodBtn,
         newMosaicBtn,
         $("<hr>"),
@@ -596,8 +592,7 @@ function loDitherAdjustment(initialOptions, parameter) {
         )
     }
 
-    $("#mainLayout").empty().append(layout, $("<hr class='my-1'>"),
-        uploadOtherImageFooterBtn(), changeMethodFooterBtn(), editColorsFooterBtn());
+    $("#mainLayout").empty().append(layout, $("<hr class='my-1'>"), uploadOtherImageFooterBtn(), changeMethodFooterBtn());
     setTitle('Which one looks better?');
 }
 
@@ -740,7 +735,7 @@ function loChoose() {
     });
 
     $("#mainLayout").empty().append(optiontsDiv, $("<hr class='my-1'>"),
-        uploadOtherImageFooterBtn(), editColorsFooterBtn());
+        uploadOtherImageFooterBtn());
 
     setTitle('Select the best looking picture');
 }
@@ -786,7 +781,7 @@ function loGradAdjustment(chooseOptions, opt) {
     });
 
     $("#mainLayout").empty().append(topPanel, splitter, canvasesDiv,
-        $("<hr class='my-1'>"), uploadOtherImageFooterBtn(), changeMethodFooterBtn(), editColorsFooterBtn());
+        $("<hr class='my-1'>"), uploadOtherImageFooterBtn(), changeMethodFooterBtn());
     setTitle('Almost done');
 }
 
