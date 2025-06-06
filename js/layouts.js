@@ -40,6 +40,9 @@ function resetImageState() {
     Glob.origImg = null;
     Glob.fullImg = null;
     Glob.cropData = null;
+    Glob.lastChooseOptions = null;
+    Glob.lastOpt = null;
+    Glob.hasCroppedOnce = false;
     Glob.fxCanvas = null;
     Glob.canvas = null;
     Glob.imageData = null;
@@ -190,6 +193,8 @@ function downloadHighRes(heightPx) {
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
 function loAdjustPortrait(chooseOptions, opt) {
+    Glob.lastChooseOptions = JSON.parse(JSON.stringify(chooseOptions));
+    Glob.lastOpt = JSON.parse(JSON.stringify(opt));
     if (!Glob.origImg) {
         Glob.origImg = new Image();
         Glob.origImg.src = Glob.img.src;
@@ -224,14 +229,13 @@ function loAdjustPortrait(chooseOptions, opt) {
         .attr('src', Glob.img.src)
         .css('vertical-align', 'inherit')
         .addClass('col-6');
-    let editPixelsBtn = $("<button class='btn btn-link pt-0'></button>")
-        .append(fa("edit"), " edit pixel-by-pixel").click(editPpClicked);
     let cropAgainBtn = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("cut"), " crop again").click(() => {
             if (Glob.fullImg) {
                 Glob.img.src = Glob.fullImg.src;
             }
-            doAfterLoadingSpinner(loCropper);
+            const cb = () => loAdjustPortrait(Glob.lastChooseOptions, Glob.lastOpt);
+            doAfterLoadingSpinner(() => loCropper(cb));
         });
     let downloadPreviewBtn1 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (4k)")
@@ -239,9 +243,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     let downloadPreviewBtn2 = $("<button class='btn btn-link pt-0'></button>")
         .append(fa("download"), " download preview (8k)")
         .click(() => downloadHighRes(8000));
-    let underMiniDiv =
-        $("<div class='col-12'></div>")
-            .append(editPixelsBtn, cropAgainBtn);
+    let underMiniDiv = $("<div class='col-12'></div>") .append(cropAgainBtn);
     let underUnderDiv = $("<div></div>").append("");
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv);
@@ -613,9 +615,9 @@ function loDitherAdjustment(initialOptions, parameter) {
 }
 
 // layout with cropper
-function loCropper() {
+function loCropper(afterCropCb = loChoose) {
     // crop, set pixel size and build mosaic
-    function onCropImage() {
+    function onCropImage(callback) {
         setTitle('Working...');
         function onImageCroppedLoaded() {
             $(Glob.img).off('load');
@@ -633,7 +635,7 @@ function loCropper() {
            saveLocal('initialCubeHeight', h);
            saveLocal('initialCubeDimen', Glob.cubeDimen);
 
-            const chooseAfterEffects = () => applyGlobImgEffects(loChoose);
+            const chooseAfterEffects = () => applyGlobImgEffects(callback);
             if (Glob.origImg.complete) {
                 chooseAfterEffects();
             } else {
@@ -647,6 +649,7 @@ function loCropper() {
         Glob.origImg = new Image();
         Glob.origImg.src = dataUrl;
         Glob.img.src = dataUrl;
+        Glob.hasCroppedOnce = true;
     }
     let cubeDimenSelect = $("<select id='cubeDimen' class='form-select'></select>");
     [1,2,3,4,5,6,7].forEach(function (d) {
@@ -683,17 +686,37 @@ function loCropper() {
         .attr('title', 'height (cubes)')
         .attr('min', 2).attr('max', Glob.maxCubesSize).val(Glob.initialCubeHeight).on('input', changeAspectRadio);
     let equalSpan = $("<span>").css('font-weight', 'bold');
+    function validateSize() {
+        if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
+            return widthInput.focus(), false;
+        if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
+            return heightInput.focus(), false;
+        return true;
+    }
+
     let nextBtn = $("<button class='btn btn-success form-control'></button>")
         .append("Next ", fa("arrow-alt-circle-right"))
         .click(function (e) {
             e.preventDefault();
+            if (!validateSize()) return;
             $(this).html("Cropping...");
-            if (widthInput.val() < 1 || widthInput.val() > Glob.maxCubesSize)
-                return widthInput.focus();
-            if (heightInput.val() < 1 || heightInput.val() > Glob.maxCubesSize)
-                return heightInput.focus();
-            doAfterLoadingSpinner(onCropImage);
-            //setTimeout(onCropImage, 1);
+            doAfterLoadingSpinner(() => onCropImage(afterCropCb));
+    });
+
+    let startOverBtn = $("<button class='btn btn-warning btn-sm me-1'></button>")
+        .text("Start over")
+        .click(function (e) {
+            e.preventDefault();
+            if (!validateSize()) return;
+            doAfterLoadingSpinner(() => onCropImage(loChoose));
+    });
+
+    let updateBtn = $("<button class='btn btn-success form-control'></button>")
+        .append("Update crop ", fa("arrow-alt-circle-right"))
+        .click(function (e) {
+            e.preventDefault();
+            if (!validateSize()) return;
+            doAfterLoadingSpinner(() => onCropImage(afterCropCb));
     });
 
     let panel = $("<div>").append(
@@ -705,7 +728,7 @@ function loCropper() {
             $("<div>").addClass("col-auto").append(equalSpan),
             $("<div>").addClass("col-auto").html("cubes"),
             $("<div>").addClass("col-auto").append(cubeDimenSelect),
-            $("<div>").addClass("col ps-1").append(nextBtn),
+            $("<div>").addClass("col ps-1").append(afterCropCb === loChoose ? nextBtn : $("<div></div>").append(startOverBtn, updateBtn)),
     )).addClass("my-2");
 
     let imgWrapper = $("<div></div>").append(imgTag);
@@ -909,7 +932,7 @@ function onImageHasBeenLoaded(img, fileName) {
     if (isMiniature) {
         doAfterLoadingSpinner(onMiniatureUploaded);
     } else {
-        doAfterLoadingSpinner(loCropper);
+        doAfterLoadingSpinner(() => loCropper());
     }
 }
 
