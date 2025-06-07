@@ -241,7 +241,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         return btn;
     }
     let row1 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
-    [ [40,40], [30,30], [20,20], [10,10] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
+    [ [40,40], [30,30], [20,20] ].forEach(p=>row1.append(cropPresetBtn(p[0],p[1])));
     let portrait = [ [20,30], [20,40], [30,40], [40,50], [40,80], [50,80], [60,80] ];
     portrait.sort((a,b)=>b[0]*b[1]-a[0]*a[1]);
     let row2 = $("<div class='d-flex flex-wrap justify-content-center'></div>");
