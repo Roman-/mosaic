@@ -33,7 +33,10 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true, 
     if (updateHistogram) {
         let hist = brightnessHistogram(imageData);
         let ranges = (method === Methods.GRADIENT && Array.isArray(param)) ? param : null;
-        drawHistogram(hist, histogramCanvas, palette, ranges);
+        drawHistogram(hist, histogramCanvas, palette, ranges, -1);
+        Glob.lastHistogram = hist;
+        Glob.lastRanges = ranges;
+        Glob.lastPalette = palette;
     }
     let newImageData = null;
     switch(method) {
@@ -112,7 +115,7 @@ function brightnessHistogram(imageData) {
 // draw brightness histogram on a canvas
 // histogram - array[256] of counts
 // canvas - jquery canvas element
-function drawHistogram(histogram, canvas, palette = null, ranges = null) {
+function drawHistogram(histogram, canvas, palette = null, ranges = null, highlight = -1) {
     if (!canvas || canvas.length === 0) return;
     let cv = canvas[0];
     let ctx = cv.getContext('2d');
@@ -120,12 +123,29 @@ function drawHistogram(histogram, canvas, palette = null, ranges = null) {
     let h = cv.height;
     ctx.clearRect(0, 0, w, h);
 
+    let totalPixels = 0;
+    for (let v of histogram) totalPixels += v;
+
     if (palette && Array.isArray(ranges)) {
         let start = 0;
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
         for (let i = 0; i < palette.length; ++i) {
             let end = (i < ranges.length) ? ranges[i] : 256;
-            ctx.fillStyle = `rgb(${palette[i][0]},${palette[i][1]},${palette[i][2]})`;
+            ctx.fillStyle = `rgba(${palette[i][0]},${palette[i][1]},${palette[i][2]},0.5)`;
             ctx.fillRect(start * w / 256, 0, (end - start) * w / 256, h);
+            if (totalPixels > 0) {
+                let sum = 0;
+                for (let j = start; j < end; ++j) sum += histogram[j];
+                let percent = ((sum / totalPixels) * 100).toFixed(1);
+                let x = (start + end) * w / 512;
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#fff';
+                ctx.fillStyle = 'gray';
+                ctx.strokeText(percent, x, 0);
+                ctx.fillText(percent, x, 0);
+            }
             start = end;
         }
     }
@@ -137,5 +157,15 @@ function drawHistogram(histogram, canvas, palette = null, ranges = null) {
     for (let i = 0; i < 256; ++i) {
         let barH = histogram[i] / max * h;
         ctx.fillRect(i * w / 256, h - barH, w / 256, barH);
+    }
+
+    if (highlight >= 0 && ranges && highlight < ranges.length) {
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        let x = ranges[highlight] * w / 256;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
     }
 }

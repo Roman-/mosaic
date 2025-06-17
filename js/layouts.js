@@ -216,6 +216,7 @@ function loAdjustPortrait(chooseOptions, opt) {
 
     if (chooseOptions.method === Methods.GRADIENT) {
         let dragging = -1;
+        let hover = -1;
         function updateFromEvent(e) {
             const rect = histCanvas[0].getBoundingClientRect();
             let x = e.clientX - rect.left;
@@ -225,6 +226,7 @@ function loAdjustPortrait(chooseOptions, opt) {
             if (dragging < uiRanges.length - 1) tone = Math.min(tone, uiRanges[dragging + 1]);
             uiRanges[dragging] = tone;
             redrawMosaicWithUiRanges(true, true);
+            drawHistogram(Glob.lastHistogram, histCanvas, chooseOptions.palette, uiRanges, dragging);
         }
         histCanvas.on('mousedown', function (e) {
             const rect = histCanvas[0].getBoundingClientRect();
@@ -242,7 +244,28 @@ function loAdjustPortrait(chooseOptions, opt) {
             $(document).on('mouseup.histdrag', function () {
                 dragging = -1;
                 $(document).off('.histdrag');
+                drawHistogram(Glob.lastHistogram, histCanvas, chooseOptions.palette, uiRanges, -1);
             });
+        });
+
+        histCanvas.on('mousemove', function (e) {
+            if (dragging >= 0) return;
+            const rect = histCanvas[0].getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let tone = clamp(Math.round(x / rect.width * 255), 0, 255);
+            let best = 0;
+            let dist = Math.abs(uiRanges[0] - tone);
+            for (let i = 1; i < uiRanges.length; ++i) {
+                let d = Math.abs(uiRanges[i] - tone);
+                if (d < dist) { dist = d; best = i; }
+            }
+            if (best !== hover) {
+                hover = best;
+                drawHistogram(Glob.lastHistogram, histCanvas, chooseOptions.palette, uiRanges, hover);
+            }
+        }).on('mouseleave', function () {
+            hover = -1;
+            drawHistogram(Glob.lastHistogram, histCanvas, chooseOptions.palette, uiRanges, -1);
         });
     }
 

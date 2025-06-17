@@ -12,6 +12,9 @@ Glob.canvas = null; // jquery canvas that we use to draw our image on
 Glob.imageData = null; // ImageData object which we'll eventually make PDF split of
 Glob.imgFileName = ""; // uploaded file name
 Glob.canvasBlur = null; // blur object (see ditheralgs.js)
+Glob.lastHistogram = null; // latest brightness histogram
+Glob.lastRanges = null;    // ranges used for last histogram
+Glob.lastPalette = null;   // palette used for last histogram
 Glob.origImg=null; Glob.fxCanvas=null;
 Glob.imgEffects={
     brightness:0,
