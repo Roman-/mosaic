@@ -168,7 +168,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     // reset image effects on entering the layout
     resetImgEffects();
     // redraws mosaic on canvas
-    function redrawMosaicWithUiRanges(asCubeStickers = true) {
+    function redrawMosaicWithUiRanges(asCubeStickers = true, updateHist = false) {
         // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
         function getUiRangesArray() {
             if ($("input#rang0").length === 0) {
@@ -184,7 +184,15 @@ function loAdjustPortrait(chooseOptions, opt) {
         let uiOpt = (chooseOptions.method === Methods.GRADIENT) ? getUiRangesArray() : $("#optRatio").val();
 
         // drawing twice is a dirty hack have antialiasing corresponding to image size
-        Glob.imageData = drawMosaicOnCanvas(Glob.canvas, chooseOptions.palette, chooseOptions.method, uiOpt, !asCubeStickers);
+        Glob.imageData = drawMosaicOnCanvas(
+            Glob.canvas,
+            chooseOptions.palette,
+            chooseOptions.method,
+            uiOpt,
+            !asCubeStickers,
+            updateHist,
+            histCanvas
+        );
     }
 
     Glob.canvas = $("<canvas>")
@@ -207,8 +215,13 @@ function loAdjustPortrait(chooseOptions, opt) {
         $("<div class='col-12'></div>")
             .append(editPixelsBtn);
     let underUnderDiv = $("<div></div>").append("");
+    let histCanvas = $("<canvas id='histCanvas'></canvas>")
+        .attr('width', 256)
+        .attr('height', 80)
+        .css('width', '100%')
+        .css('border', '1px solid #ccc');
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
-    imagesDiv.append(underMiniDiv, underUnderDiv);
+    imagesDiv.append(underMiniDiv, underUnderDiv, histCanvas);
 
     function editPpClicked() {
         downloadGlobImageData();
@@ -236,7 +249,7 @@ function loAdjustPortrait(chooseOptions, opt) {
         Glob.fxCanvas.update();
 
         let dataUrl = Glob.fxCanvas.toDataURL();
-        $(Glob.img).off('load.fx').one('load.fx', redrawMosaicWithUiRanges);
+        $(Glob.img).off('load.fx').one('load.fx', () => redrawMosaicWithUiRanges(true, true));
         Glob.img.src = dataUrl;
         imgTag.attr('src', dataUrl);
     }

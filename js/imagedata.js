@@ -21,7 +21,7 @@ function getRgbOfPixel(imageData, x, y) {
 // @param mathod - one of Methods constants
 // @param param - for grad, an array of ranges of size (colors-1). Otherwise, a float number [0..5] = ratio
 // @returns imageData of resulting image
-function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true) {
+function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true, updateHistogram = false, histogramCanvas = null) {
     // Draw pixels on canvas -> process them -> increase canvas and draw framed picture
     let newWidth = canvas.width();
     canvas.attr('width', Glob.pixelWidth).attr('height', Glob.pixelHeight);
@@ -30,6 +30,10 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true) 
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(Glob.img, 0, 0, Glob.img.width, Glob.img.height, 0, 0, Glob.pixelWidth, Glob.pixelHeight);
     let imageData = ctx.getImageData(0, 0, Glob.pixelWidth, Glob.pixelHeight);
+    if (updateHistogram) {
+        let hist = brightnessHistogram(imageData);
+        drawHistogram(hist, histogramCanvas);
+    }
     let newImageData = null;
     switch(method) {
         case Methods.GRADIENT:
@@ -89,4 +93,37 @@ function imageDataToPngDataUrl(imageData) {
     canvas[0].getContext('2d').putImageData(imageData, 0, 0);
 
     return canvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");
+}
+
+// create brightness histogram (256 values) from ImageData
+// @param imageData - ImageData object
+// @returns array[256] with pixel counts
+function brightnessHistogram(imageData) {
+    let hist = new Array(256).fill(0);
+    let d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        let tone = Math.round((d[i] + d[i + 1] + d[i + 2]) / 3);
+        hist[tone]++;
+    }
+    return hist;
+}
+
+// draw brightness histogram on a canvas
+// histogram - array[256] of counts
+// canvas - jquery canvas element
+function drawHistogram(histogram, canvas) {
+    if (!canvas || canvas.length === 0) return;
+    let cv = canvas[0];
+    let ctx = cv.getContext('2d');
+    let w = cv.width;
+    let h = cv.height;
+    ctx.clearRect(0, 0, w, h);
+    let max = 0;
+    for (let v of histogram) if (v > max) max = v;
+    if (max === 0) return;
+    ctx.fillStyle = '#444';
+    for (let i = 0; i < 256; ++i) {
+        let barH = histogram[i] / max * h;
+        ctx.fillRect(i * w / 256, h - barH, w / 256, barH);
+    }
 }
