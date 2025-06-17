@@ -274,7 +274,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                     .val(Math.ceil(opt[i]))
                     .attr('id', 'rang'+i)
                     .attr('data-prefix', inputPrefix(i))
-                    .on('input', function () {redrawMosaicWithUiRanges()});
+                    .on('input', function () {redrawMosaicWithUiRanges(true, true)});
                 rangesDiv.append(r);
             }
             return rangesDiv;
@@ -288,7 +288,7 @@ function loAdjustPortrait(chooseOptions, opt) {
                 .attr('data-decimals', 2)
                 .attr('data-prefix', 'G')
                 .attr('title', 'grain')
-                .on('input', function () {redrawMosaicWithUiRanges()});
+                .on('input', function () {redrawMosaicWithUiRanges(true, true)});
             rangesDiv.append(inputRatio);
             return rangesDiv;
         }
@@ -560,7 +560,7 @@ function loAdjustPortrait(chooseOptions, opt) {
     }
     plasticColorSelect.trigger('change');
     // drawing twice is a dirty hack to deal with antialiasing, corresponding to image size
-    redrawMosaicWithUiRanges(true);
+    redrawMosaicWithUiRanges(true, true);
     redrawMosaicWithUiRanges(true);
     let totalCubes = Glob.pixelWidth * Glob.pixelHeight / (Glob.cubeDimen * Glob.cubeDimen);
     let artForm = Glob.cubeDimen === 1 ? "px artwork" : "cubes mosaic";

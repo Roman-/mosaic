@@ -32,7 +32,8 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true, 
     let imageData = ctx.getImageData(0, 0, Glob.pixelWidth, Glob.pixelHeight);
     if (updateHistogram) {
         let hist = brightnessHistogram(imageData);
-        drawHistogram(hist, histogramCanvas);
+        let ranges = (method === Methods.GRADIENT && Array.isArray(param)) ? param : null;
+        drawHistogram(hist, histogramCanvas, palette, ranges);
     }
     let newImageData = null;
     switch(method) {
@@ -111,13 +112,24 @@ function brightnessHistogram(imageData) {
 // draw brightness histogram on a canvas
 // histogram - array[256] of counts
 // canvas - jquery canvas element
-function drawHistogram(histogram, canvas) {
+function drawHistogram(histogram, canvas, palette = null, ranges = null) {
     if (!canvas || canvas.length === 0) return;
     let cv = canvas[0];
     let ctx = cv.getContext('2d');
     let w = cv.width;
     let h = cv.height;
     ctx.clearRect(0, 0, w, h);
+
+    if (palette && Array.isArray(ranges)) {
+        let start = 0;
+        for (let i = 0; i < palette.length; ++i) {
+            let end = (i < ranges.length) ? ranges[i] : 256;
+            ctx.fillStyle = `rgb(${palette[i][0]},${palette[i][1]},${palette[i][2]})`;
+            ctx.fillRect(start * w / 256, 0, (end - start) * w / 256, h);
+            start = end;
+        }
+    }
+
     let max = 0;
     for (let v of histogram) if (v > max) max = v;
     if (max === 0) return;
