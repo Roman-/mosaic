@@ -167,21 +167,12 @@ function loAdjustPortrait(chooseOptions, opt) {
     }
     // reset image effects on entering the layout
     resetImgEffects();
+    // store current parameter (ranges for gradient or ratio for others)
+    let uiRanges = Array.isArray(opt) ? opt.slice() : null;
+
     // redraws mosaic on canvas
     function redrawMosaicWithUiRanges(asCubeStickers = true, updateHist = false) {
-        // @returns array of N values that denotes borders (color transitions) - for 5 cubic portrait colors
-        function getUiRangesArray() {
-            if ($("input#rang0").length === 0) {
-                console.error("getRangesArray: no ranges inputs");
-            }
-            let arr = [];
-            for (let i = 0; $("input#rang" + i).length; ++i) {
-                arr.push(Number.parseFloat($("input#rang" + i).val()));
-            }
-            return arr;
-        }
-
-        let uiOpt = (chooseOptions.method === Methods.GRADIENT) ? getUiRangesArray() : $("#optRatio").val();
+        let uiOpt = (chooseOptions.method === Methods.GRADIENT) ? uiRanges : $("#optRatio").val();
 
         // drawing twice is a dirty hack have antialiasing corresponding to image size
         Glob.imageData = drawMosaicOnCanvas(
@@ -223,6 +214,38 @@ function loAdjustPortrait(chooseOptions, opt) {
     let imagesDiv = $("<div class='col-sm-8'></div>").append(imgTag, Glob.canvas);
     imagesDiv.append(underMiniDiv, underUnderDiv, histCanvas);
 
+    if (chooseOptions.method === Methods.GRADIENT) {
+        let dragging = -1;
+        function updateFromEvent(e) {
+            const rect = histCanvas[0].getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let tone = clamp(Math.round(x / rect.width * 255), 0, 255);
+            if (dragging < 0) return;
+            if (dragging > 0) tone = Math.max(tone, uiRanges[dragging - 1]);
+            if (dragging < uiRanges.length - 1) tone = Math.min(tone, uiRanges[dragging + 1]);
+            uiRanges[dragging] = tone;
+            redrawMosaicWithUiRanges(true, true);
+        }
+        histCanvas.on('mousedown', function (e) {
+            const rect = histCanvas[0].getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let tone = clamp(Math.round(x / rect.width * 255), 0, 255);
+            let best = 0;
+            let dist = Math.abs(uiRanges[0] - tone);
+            for (let i = 1; i < uiRanges.length; ++i) {
+                let d = Math.abs(uiRanges[i] - tone);
+                if (d < dist) { dist = d; best = i; }
+            }
+            dragging = best;
+            updateFromEvent(e);
+            $(document).on('mousemove.histdrag', updateFromEvent);
+            $(document).on('mouseup.histdrag', function () {
+                dragging = -1;
+                $(document).off('.histdrag');
+            });
+        });
+    }
+
     function editPpClicked() {
         downloadGlobImageData();
         underUnderDiv.html(Txt.editPixelByPixel);
@@ -258,27 +281,12 @@ function loAdjustPortrait(chooseOptions, opt) {
     function buildRangesDiv() {
         let rangesDiv = $("<div></div>");
         if (!chooseOptions.opts || chooseOptions.opts.length === 0)
-            return rangesDiv ;
+            return rangesDiv;
 
         if (chooseOptions.method === Methods.GRADIENT) {
-            // @returns color prefix for input spinner
-            function inputPrefix(i) {
-                let col = 'rgb(' + chooseOptions.palette[i][0] + ',' + chooseOptions.palette[i][1] + ',' + chooseOptions.palette[i][2] + ');';
-                let style = 'font-weight: bold; background-color: '+col+'; border-radius: 3px; padding: 0 0.5em;';
-                return '<span style="'+style+'">&nbsp;</span>';
-            }
-
-            for (let i = 0; i < opt.length; ++i) {
-                let r = $("<input type='number'>")
-                    .attr('min', 0).attr('max', 255)
-                    .val(Math.ceil(opt[i]))
-                    .attr('id', 'rang'+i)
-                    .attr('data-prefix', inputPrefix(i))
-                    .on('input', function () {redrawMosaicWithUiRanges(true, true)});
-                rangesDiv.append(r);
-            }
+            // no numeric inputs for gradient ranges
             return rangesDiv;
-        } else { // if method != GRADIENT
+        } else {
             rangesDiv.attr('title', 'grain');
             let inputRatio = $("<input type='number'>")
                 .attr('min', -50).attr('max', 1500)
