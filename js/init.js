@@ -28,4 +28,7 @@ function initLocalStorageVars() {
 
 function initMenu() {
     $(".closeMenu").attr('data-bs-toggle', 'collapse').attr("data-bs-target", "#navbarNav");
+    $('#navbarNav').on('click', 'a', () => {
+        $('#navbarNav').collapse('hide');
+    });
 }
