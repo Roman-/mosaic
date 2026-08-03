@@ -80,13 +80,46 @@ function drawMosaicOnCanvas(canvas, palette, method, param, asMiniature = true) 
     return newImageData;
 }
 
-// @returns dataURL of PNG picture obtained from imageData
-// width, height - picture w and h in pixels. imageData size = width*height*4
-// convert ImageData to PNG image ready to be downloaded
-function imageDataToPngDataUrl(imageData) {
-    let canvas = $("<canvas></canvas>");
-    canvas.width(imageData.width).height(imageData.height).attr('width', imageData.width).attr('height', imageData.height);
-    canvas[0].getContext('2d').putImageData(imageData, 0, 0);
+// convert ImageData to a PNG blob ready to be downloaded
+// asynchronous, because canvas.toBlob is
+// @param cb - called with the resulting Blob
+function imageDataToPngBlob(imageData, cb) {
+    let canvas = document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.getContext('2d').putImageData(imageData, 0, 0);
 
-    return canvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");
+    if (canvas.toBlob)
+        canvas.toBlob(cb, "image/png");
+    else
+        cb(dataUrlToBlob(canvas.toDataURL("image/png")));
+}
+
+// @returns true if img looks like a miniature we've produced ourselves, judging by the picture
+// alone: small, and made of a handful of distinct colors (a photo has thousands of them).
+// Needed because the filename hint isn't reliable - mobile browsers rename downloaded files.
+function looksLikeMiniature(img) {
+    const MAX_SIDE = 600;   // 200 cubes per side, way above anything realistic
+    const MAX_COLORS = 24;  // sticker palette is 6-7 colors; leave room for hand-editing slop
+
+    if (img.width > MAX_SIDE || img.height > MAX_SIDE)
+        return false;
+
+    let canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    let data;
+    try { data = ctx.getImageData(0, 0, img.width, img.height).data; }
+    catch (e) { return false; } // tainted canvas - can't tell, treat it as a normal picture
+
+    let colors = new Set();
+    for (let i = 0; i < data.length; i += 4) {
+        colors.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
+        if (colors.size > MAX_COLORS)
+            return false;
+    }
+    return true;
 }

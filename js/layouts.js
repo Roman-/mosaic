@@ -149,14 +149,12 @@ function downloadHighRes(heightPx) {
     }
 
     // JPEG export & download
-    const url  = cv.toDataURL("image/jpeg", 0.92).replace("image/jpeg", "image/octet-stream");
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = (Glob.imgFileName ? filenameFromPath(Glob.imgFileName) : "mosaic")
+    const name = (Glob.imgFileName ? filenameFromPath(Glob.imgFileName) : "mosaic")
         + "_" + outW + "x" + heightPx + "px.jpg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    if (cv.toBlob)
+        cv.toBlob(blob => saveBlob(blob, name), "image/jpeg", 0.92);
+    else
+        saveBlob(dataUrlToBlob(cv.toDataURL("image/jpeg", 0.92)), name);
 }
 
 // layout with last step, with fine adjustments of the portrait and "download PDF" button
@@ -852,12 +850,18 @@ function calculatePixelWh() {
     Glob.pixelHeight = Math.max(pixelHeight1, pixelHeight2);
 }
 
+// @returns file name of the miniature PNG
+function miniatureFileName() {
+    return `miniature_${Glob.pixelWidth}x${Glob.pixelHeight}_px.png`;
+}
+
 // download Glob.imageData as PNG image
 function downloadGlobImageData() {
-    let link = $("<a></a>");
-    link.attr('download', `miniature_${Glob.pixelWidth}x${Glob.pixelHeight}_px.png`);
-    link.attr('href', imageDataToPngDataUrl(Glob.imageData));
-    link.get(0).click();
+    if (!Glob.imageData) {
+        console.error("downloadGlobImageData: nothing has been rendered yet");
+        return;
+    }
+    imageDataToPngBlob(Glob.imageData, blob => saveBlob(blob, miniatureFileName()));
 }
 
 // for debugging purposes: call this function to imitate user uploading an image
@@ -878,11 +882,13 @@ function onImageHasBeenLoaded(img, fileName) {
     Glob.img = new Image();
     Glob.img.src = img.src;
     Glob.imgFileName = fileName;
-    // assuming miniature is uploaded if filename is preserved (starts with "miniature") or really small picture
-    // with all sides devisible by 3
-    let isMiniature = (Glob.img.width % (Glob.cubeDimen)===0)
-        && (Glob.img.height % (Glob.cubeDimen)===0)
-        && Glob.imgFileName.toLowerCase().startsWith('miniature');
+    // assuming miniature is uploaded if all sides are divisible by 3 and either the filename is
+    // preserved (starts with "miniature") or the picture itself looks like a miniature - mobile
+    // browsers and photo galleries happily rename the file we've downloaded.
+    // NB: check img and not Glob.img, which hasn't loaded yet at this point (its .width is still 0)
+    let isMiniature = (img.width % (Glob.cubeDimen)===0)
+        && (img.height % (Glob.cubeDimen)===0)
+        && (Glob.imgFileName.toLowerCase().startsWith('miniature') || looksLikeMiniature(img));
 
     if (isMiniature) {
         doAfterLoadingSpinner(onMiniatureUploaded);

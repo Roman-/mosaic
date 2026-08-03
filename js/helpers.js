@@ -97,6 +97,47 @@ function filenameFromPath(path) {
     return (parts.length > 1) ? parts[parts.length - 2] : parts[0];
 }
 
+// @returns Blob built from a dataURL (for browsers without canvas.toBlob)
+function dataUrlToBlob(dataUrl) {
+    let parts = dataUrl.split(',');
+    let mime = parts[0].match(/:(.*?);/)[1];
+    let binary = atob(parts[1]);
+    let bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; ++i)
+        bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], {type: mime});
+}
+
+// saves blob to user's device as fileName.
+// Mobile browsers are picky here: in-app browsers (Instagram, Telegram, ...) silently ignore
+// data: URLs and iOS Safari refuses to download them as well, so we go through a blob: URL and a
+// real, in-document <a> (a detached one doesn't trigger a download in some browsers).
+function saveBlob(blob, fileName) {
+    let url = URL.createObjectURL(blob);
+    setTimeout(() => URL.revokeObjectURL(url), 60 * 1000); // revoking early cancels a slow download
+
+    let a = document.createElement('a');
+    if ('download' in a) {
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
+    }
+
+    // no download attribute (old iOS Safari): offer the native share sheet instead,
+    // which has "Save to Files" / "Save Image" in it
+    let file = (typeof File === 'function') ? new File([blob], fileName, {type: blob.type}) : null;
+    if (file && navigator.canShare && navigator.canShare({files: [file]})) {
+        navigator.share({files: [file]})
+            .catch(e => { if (e && e.name !== 'AbortError') window.open(url, '_blank'); });
+        return;
+    }
+    window.open(url, '_blank');
+}
+
 // download file with plain text in it
 function downloadPlainText(text, fileName) {
     var element = document.createElement('a');
